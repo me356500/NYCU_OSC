@@ -18,7 +18,9 @@ void cmd(const char *s1) {
         reset(0);
     }
     else {
-        uart_puts("Unknown command\n");
+        uart_puts("Unknown command: ");
+        uart_puts(s1);
+        uart_puts("\n");
     }
 }
 
