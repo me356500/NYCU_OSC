@@ -1,6 +1,6 @@
 
 
-void cmd(const char *s1) {
+void cmd(char *s1) {
     
     if(!strcmp(s1, "help")) {
         uart_puts("help   \t: print this help menu\n");
@@ -15,13 +15,14 @@ void cmd(const char *s1) {
         mbox_info();
     }
     else if(!strcmp(s1, "reboot")) {
-        reset(0);
+        reset(1);
     }
     else {
         uart_puts("Unknown command: ");
         uart_puts(s1);
         uart_puts("\n");
     }
+    return;
 }
 
 void shell() {
@@ -29,13 +30,20 @@ void shell() {
         uart_puts("# ");
 
         int i = 0;
-        char str[128] = {};
+        char str[64] = {};
         char c = ' ';
         
         while( c != '\n') {
             c = uart_getc();
+            
+            if(c == '\n') {
+                uart_send('\r');
+            }
+            else {
+                uart_send(c);
+            }
+                
 
-            uart_send(c);
             if(c == 0x08 || c == 0x7f && i > 0) {
                 uart_send('\b');
                 uart_send(' ');
