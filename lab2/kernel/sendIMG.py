@@ -17,4 +17,4 @@ with open(f, "rb") as fp:
     while byte:
         tty.write(byte)
         byte = fp.read(1)
-        time.sleep(delay)
+        time.sleep(1)
