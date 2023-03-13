@@ -63,7 +63,7 @@ char* strtok(char* str, const char* delimiters) {
         }
     }
     if (start == buffer) {
-        return NULL;
+        return 0;
     } else {
         return start;
     }

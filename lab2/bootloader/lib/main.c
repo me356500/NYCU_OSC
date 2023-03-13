@@ -1,7 +1,3 @@
-#include "uart.h"
-#include "mbox.h"
-#include "shell.h"
-#include "string.h"
 
 int relocated = 0;
 

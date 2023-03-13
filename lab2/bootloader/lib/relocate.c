@@ -1,3 +1,6 @@
+extern unsigned int __end;
+extern unsigned int __start;
+
 void relocate(char *arg)
 {
     unsigned long bootloader_size = (&__end - &__start);
