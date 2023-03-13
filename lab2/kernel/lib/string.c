@@ -33,3 +33,38 @@ int strncmp(const char *s1, const char *s2, int n) {
     }
     return *(const unsigned char *) s1 - *(const unsigned char *) s2;
 }
+
+char* strtok(char* str, const char* delimiters) {
+    static char* buffer = 0;
+    if (str != 0) {
+        buffer = str;
+    }
+    if (buffer == 0) {
+        return 0;
+    }
+    char* start = buffer;
+    while (*buffer != '\0') {
+        const char* delim = delimiters;
+        while (*delim != '\0') {
+            if (*buffer == *delim) {
+                *buffer = '\0';
+                buffer++;
+                if (start != buffer) {
+                    return start;
+                } else {
+                    start++;
+                    break;
+                }
+            }
+            delim++;
+        }
+        if (*delim == '\0') {
+            buffer++;
+        }
+    }
+    if (start == buffer) {
+        return NULL;
+    } else {
+        return start;
+    }
+}

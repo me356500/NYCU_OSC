@@ -9,7 +9,7 @@ SECTIONS
         *(.bss*)
         __bss_end = .;
     }
-
+    . = 0x8000000;
     __heap_start = .;
     _end = .;
 }

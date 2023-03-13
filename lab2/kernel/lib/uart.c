@@ -23,17 +23,18 @@ void uart_init()
 
     /* initialize UART */
     *AUX_ENABLE |=1;       // enable UART1, AUX mini uart
-    *AUX_MU_CNTL = 0;
-    *AUX_MU_LCR = 3;       // 8 bits
-    *AUX_MU_MCR = 0;
-    *AUX_MU_IER = 0;
+    *AUX_MU_CNTL = 0;      // disable tx,rx during configuration
+    *AUX_MU_LCR = 3;       // set data size 8 bits
+    *AUX_MU_MCR = 0;       // don't need auto flow control
+    *AUX_MU_IER = 0;       // disable tx/rx interrupts
     *AUX_MU_IIR = 0xc6;    // disable interrupts
-    *AUX_MU_BAUD = 270;    // 115200 baud
+    *AUX_MU_BAUD = 270;    // 115200 baud, system clock 250MHz
     /* map UART1 to GPIO pins */
-    r=*GPFSEL1;
-    r&=~((7<<12)|(7<<15)); // gpio14, gpio15
-    r|=(2<<12)|(2<<15);    // alt5
-    *GPFSEL1 = r;
+    r = *GPFSEL1;
+    //gpio15 can be both used for mini UART and PL011 UART
+    r&=~((7<<12)|(7<<15)); // gpio14 least bit is 12, gpio15 least bit is 15
+    r|=(2<<12)|(2<<15);    // set alt5 for gpio14 and gpio15
+    *GPFSEL1 = r;          // control gpio pin 10~19
     *GPPUD = 0;            // enable pins 14 and 15
     r=150; while(r--) { asm volatile("nop"); }
     *GPPUDCLK0 = (1<<14)|(1<<15);
@@ -87,5 +88,22 @@ void uart_hex(unsigned int d) {
         // 0-9 => '0'-'9', 10-15 => 'A'-'F'
         n+=n>9?0x37:0x30;
         uart_send(n);
+    }
+}
+
+void uart_printf(char *fmt, ...) {
+    __builtin_va_list args;
+    __builtin_va_start(args, fmt);
+    // we don't have memory allocation yet, so we
+    // simply place our string after our code
+    char *s = (char*)&_end;
+    // use sprintf to format our string
+    vsprintf(s,fmt,args);
+    // print out as usual
+    while(*s) {
+        /* convert newline to carrige return + newline */
+        if(*s=='\n')
+            uart_send('\r');
+        uart_send(*s++);
     }
 }
