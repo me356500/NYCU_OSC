@@ -20,27 +20,28 @@
 void uart_init()
 {
     register unsigned int r;
-
-    /* initialize UART */
-    *AUX_ENABLE |=1;       // enable UART1, AUX mini uart
-    *AUX_MU_CNTL = 0;      // disable tx,rx during configuration
-    *AUX_MU_LCR = 3;       // set data size 8 bits
-    *AUX_MU_MCR = 0;       // don't need auto flow control
-    *AUX_MU_IER = 0;       // disable tx/rx interrupts
-    *AUX_MU_IIR = 0xc6;    // disable interrupts
-    *AUX_MU_BAUD = 270;    // 115200 baud, system clock 250MHz
-    /* map UART1 to GPIO pins */
+    
     r = *GPFSEL1;
     //gpio15 can be both used for mini UART and PL011 UART
-    r&=~((7<<12)|(7<<15)); // gpio14 least bit is 12, gpio15 least bit is 15
-    r|=(2<<12)|(2<<15);    // set alt5 for gpio14 and gpio15
+    r &= ~((7<<12)|(7<<15)); // gpio14 least bit is 12, gpio15 least bit is 15
+    r |= (2<<12)|(2<<15);    // set alt5 for gpio14 and gpio15
     *GPFSEL1 = r;          // control gpio pin 10~19
     *GPPUD = 0;            // enable pins 14 and 15
     r=150; while(r--) { asm volatile("nop"); }
     *GPPUDCLK0 = (1<<14)|(1<<15);
     r=150; while(r--) { asm volatile("nop"); }
     *GPPUDCLK0 = 0;        // flush GPIO setup
+    
+    /* initialize UART */
+    *AUX_ENABLE |= 1;      // enable UART1, AUX mini uart
+    *AUX_MU_CNTL = 0;      // disable tx,rx during configuration
+    *AUX_MU_IER = 0;       // disable tx/rx interrupts
+    *AUX_MU_LCR = 3;       // set data size 8 bits
+    *AUX_MU_MCR = 0;       // don't need auto flow control
+    *AUX_MU_BAUD = 270;    // 115200 baud, system clock 250MHz
+    *AUX_MU_IIR = 0x6;     // clear FIFO
     *AUX_MU_CNTL = 3;      // enable Tx, Rx
+    
 }
 
 /**
