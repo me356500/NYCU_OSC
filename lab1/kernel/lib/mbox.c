@@ -57,7 +57,7 @@ void get_board_revision(){
     mbox[6] = END_TAG;
 
     mbox_call(8); // message passing procedure call, you should implement it following the 6 steps provided above.
-    uart_puts("\rBoard Revision: 0x");
+    uart_puts("\nBoard Revision: 0x");
     uart_hex(mbox[5]);// it should be 0xa020d3 for rpi3 b+
     uart_puts("\n");
 }

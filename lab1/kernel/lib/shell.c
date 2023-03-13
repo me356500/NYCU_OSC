@@ -37,7 +37,7 @@ void shell() {
             c = uart_getc();
             
             if(c == '\n') {
-                uart_send('\r');
+                uart_puts("\n");
             }
             else {
                 uart_send(c);
