@@ -3,6 +3,22 @@ int isalpha(char c){
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
+int isdigit(int c) {
+    return c >= '0' && c <= '9';
+}
+
+int toupper(int c) {
+    if (c >= 'a' && c <= 'z') {
+        return c - 'a' + 'A';
+    } else {
+        return c;
+    }
+}
+
+int isxdigit(int c) {
+    return isdigit(c) || (toupper(c) >= 'A' && toupper(c) <= 'F');
+}
+
 int strlen(const char *s) {
     int len = 0;
     while (*s++) len++;
@@ -67,4 +83,18 @@ char* strtok(char* str, const char* delimiters) {
     } else {
         return start;
     }
+}
+
+unsigned int parse_hex_str(char *arr, int size) {
+    unsigned int result = 0;
+
+    for (int i = 0; i < size; i++) {
+        char c = arr[i];
+        if (isxdigit(c)) {
+            int val = isdigit(c) ? c - '0' : toupper(c) - 'A' + 10;
+            result = (result << 4) + val;
+        }
+    }
+
+    return result;
 }

@@ -1,3 +1,5 @@
+#include "cpio.h"
+
 char *cpio_start;
 char *cpio_end;
 

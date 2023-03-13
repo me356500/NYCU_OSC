@@ -1,12 +1,9 @@
-#include "uart.h"
-#include "mbox.h"
-#include "shell.h"
-#include "string.h"
 
-int main() {
+
+void main(char *arg)
+{
+   
 
     uart_init();
-    mbox_info();
     shell();
-    
 }
