@@ -1,15 +1,16 @@
 
-int relocated = 0;
+
+int relocated = 1;
 
 char *dtb_base;
 
 void main(char *arg)
 {
-    char *dtb_base;
+    
     dtb_base = arg;
-    if (!relocated)
+    if (relocated)
     {
-        relocated = 1;
+        relocated = 0;
         relocate(arg);
     }
 

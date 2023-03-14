@@ -1,5 +1,4 @@
-#include "uart.h"
-#include "string.h"
+
 extern char *dtb_base;
 void load() {
 

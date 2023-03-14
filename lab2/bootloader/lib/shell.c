@@ -1,5 +1,6 @@
 
 
+
 void cmd(const char *s1) {
     
     if(!strcmp(s1, "help")) {
@@ -24,7 +25,7 @@ void cmd(const char *s1) {
 void shell() {
     while(1) {
         uart_puts("# ");
-
+        //uart_send(uart_getc());
         int i = 0;
         char str[128] = {};
         char c = ' ';
@@ -32,7 +33,7 @@ void shell() {
         while( c != '\n') {
             c = uart_getc();
 
-             if(c == '\n') {
+            if(c == '\n') {
                 uart_puts("\n");
             }
             else {

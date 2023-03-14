@@ -1,6 +1,6 @@
 #include "cpio.h"
 
-char *cpio_start = (char*)0x8000000;
+char *cpio_start;
 char *cpio_end;
 
 
