@@ -33,9 +33,11 @@ void cmd(char *s1) {
     }
     else if(!strcmp(arg[0], "cat") && i == 2) {
         cat(arg[1]);
+        //uart_puts(arg[1]);
     }
     else if(!strcmp(arg[0], "ls") && i == 2) {
         ls(arg[1]);
+        //uart_puts(arg[1]);
     }
     else {
         uart_puts("Unknown command: ");

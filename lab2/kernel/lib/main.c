@@ -11,6 +11,6 @@ void main(char *arg)
     str[1] = 'b';
     str[2] = 'c';
     */
-    uart_puts(str);
+    //uart_puts(str);
     shell();
 }
