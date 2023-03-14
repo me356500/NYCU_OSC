@@ -1,5 +1,6 @@
 
-
+#include "uart.h"
+#include "string.h"
 struct fdt_header {
     unsigned int magic;
     unsigned int totalsize;

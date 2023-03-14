@@ -5,7 +5,7 @@ import time
 
 # tty.usbserial-0001
 # /dev/ttys002
-tty = serial.Serial("/dev/ttys007", 115200, timeout=0.5) 
+tty = serial.Serial("/dev/tty.usbserial-0001", 115200, timeout=0.5) 
 file_stats = os.stat("kernel8.img")
 
 # issue request and tell the size of img to rec

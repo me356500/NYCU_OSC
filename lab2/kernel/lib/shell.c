@@ -1,5 +1,4 @@
 #include "string.h"
-#include "cpio.h"
 
 void cmd(char *s1) {
     
@@ -51,7 +50,7 @@ void shell() {
         uart_puts("# ");
 
         int i = 0;
-        char str[128] = {};
+        char str[30] = {};
         char c = ' ';
         
         while( c != '\n') {

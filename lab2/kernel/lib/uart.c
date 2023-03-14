@@ -1,4 +1,4 @@
-#include "gpio.h"
+#include "uart.h"
 
 /* Auxilary mini UART registers */
 #define AUX_ENABLE      ((volatile unsigned int*)(MMIO_BASE+0x00215004))
@@ -94,19 +94,19 @@ void uart_hex(unsigned int d) {
 
 extern char _end;
 
-void uart_printf(char *fmt, ...) {
+int uart_printf(char *fmt, ...)
+{
     __builtin_va_list args;
     __builtin_va_start(args, fmt);
-    // we don't have memory allocation yet, so we
-    // simply place our string after our code
-    char *s = (char*)&_end;
-    // use sprintf to format our string
-    vsprintf(s,fmt,args);
-    // print out as usual
-    while(*s) {
-        /* convert newline to carrige return + newline */
-        if(*s=='\n')
+    char buf[MAX_BUF_SIZE];
+    char *s = (char *)buf;
+    int count = vsprintf(s, fmt, args);
+    while (*s)
+    {
+        if (*s == '\n')
             uart_send('\r');
         uart_send(*s++);
     }
+    __builtin_va_end(args);
+    return count;
 }

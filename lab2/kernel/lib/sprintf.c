@@ -1,3 +1,4 @@
+#include "uart.h"
 
 unsigned int vsprintf(char *dst, char* fmt, __builtin_va_list args)
 {
@@ -13,6 +14,11 @@ unsigned int vsprintf(char *dst, char* fmt, __builtin_va_list args)
     // main loop
     arg = 0;
     while(*fmt) {
+        if(dst-orig > MAX_BUF_SIZE-0x10)
+        {
+            uart_printf("Error!!! format string too long!!!!");
+            return -1;
+        }
         // argument access
         if(*fmt=='%') {
             fmt++;
@@ -81,12 +87,9 @@ unsigned int vsprintf(char *dst, char* fmt, __builtin_va_list args)
                     tmpstr[--i]=n+(n>9?0x37:0x30);
                     arg>>=4;
                 } while(arg!=0 && i>0);
-                // padding, only leading zeros
-                if(len>0 && len<=16) {
-                    while(i>16-len) {
-                        tmpstr[--i]='0';
-                    }
-                }
+                while(i>8) 
+                    tmpstr[--i]='0';
+                
                 p=&tmpstr[i];
                 goto copystring;
             } else
@@ -117,5 +120,7 @@ unsigned int sprintf(char *dst, char* fmt, ...)
 {
     __builtin_va_list args;
     __builtin_va_start(args, fmt);
-    return vsprintf(dst,fmt,args);
+    unsigned int r = vsprintf(dst,fmt,args);
+    __builtin_va_end(args);
+    return r;
 }

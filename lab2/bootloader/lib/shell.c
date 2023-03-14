@@ -27,7 +27,7 @@ void shell() {
         uart_puts("# ");
         //uart_send(uart_getc());
         int i = 0;
-        char str[128] = {};
+        char str[50] = {};
         char c = ' ';
         
         while( c != '\n') {
