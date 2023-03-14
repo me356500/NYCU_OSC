@@ -1,5 +1,5 @@
-extern unsigned int __end;
-extern unsigned int __start;
+extern char __end;
+extern char __start;
 
 void relocate(char *arg)
 {

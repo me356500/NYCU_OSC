@@ -11,11 +11,8 @@ void cmd(const char *s1) {
     else if(!strcmp(s1, "hello")) {
         uart_puts("Hello World!\n");
     }
-    else if(!strcmp(s1, "mailbox")) {
-        mbox_info();
-    }
-    else if(!strcmp(s1, "reboot")) {
-        reset(0);
+    else if(!strcmp(s1, "load")) {
+        load();
     }
     else {
         uart_puts("Unknown command: ");
@@ -35,7 +32,12 @@ void shell() {
         while( c != '\n') {
             c = uart_getc();
 
-            uart_send(c);
+             if(c == '\n') {
+                uart_puts("\n");
+            }
+            else {
+                uart_send(c);
+            }
             if(c == 0x08 || c == 0x7f && i > 0) {
                 uart_send('\b');
                 uart_send(' ');

@@ -55,7 +55,12 @@ void shell() {
         while( c != '\n') {
             c = uart_getc();
 
-            uart_send(c);
+             if(c == '\n') {
+                uart_puts("\n");
+            }
+            else {
+                uart_send(c);
+            }
             if(c == 0x08 || c == 0x7f && i > 0) {
                 uart_send('\b');
                 uart_send(' ');
