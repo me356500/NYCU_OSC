@@ -32,7 +32,6 @@ void cmd(char *s1) {
         mbox_info();
     }
     else if(!strcmp(arg[0], "reboot") && i == 1) {
-        uart
         reset(1);
     }
     else if(!strcmp(arg[0], "cat") && i == 2) {
