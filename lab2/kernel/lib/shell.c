@@ -18,6 +18,7 @@ void cmd(char *s1) {
     
     if(!strcmp(arg[0], "help") && i == 1) {
         uart_puts("cat    \t: cat\n");
+        uart_puts("clear  \t: clear all\n");
         uart_puts("help   \t: print this help menu\n");
         uart_puts("hello  \t: print Hello World!\n");
         uart_puts("ls     \t: ls\n");
@@ -35,8 +36,12 @@ void cmd(char *s1) {
         reset(1);
     }
     else if(!strcmp(arg[0], "cat") && i == 2) {
+        
         cat(arg[1]);
         //uart_puts(arg[1]);
+    }
+    else if(!strcmp(arg[0], "clear") && i == 1) {
+        uart_puts("\x1b[2J\x1b[H");
     }
     else if(!strcmp(arg[0], "ls") && i == 1) {
         ls(".");

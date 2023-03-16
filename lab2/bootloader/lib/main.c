@@ -15,7 +15,7 @@ void main(char *arg)
         relocated = 1;
         relocate(arg);
     }
-    uart_puts("\n");
+    uart_puts("\x1b[2J\x1b[H");
     
     shell();
 }
