@@ -18,9 +18,11 @@ void load() {
         sz[idx++] = c;
     }
     int size = atoi(sz);
+    uart_puts(sz);
+
     while (size--)
         kernel[kn_ptr++] = uart_getc();
-
+    uart_puts("safasdf\n");
     void (*run)(char *) = (void *)kernel;
     run(dtb_base);
 

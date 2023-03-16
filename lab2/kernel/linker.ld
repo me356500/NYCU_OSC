@@ -10,7 +10,6 @@ SECTIONS
         *(.bss*)
         __bss_end = .;
     }
-    . = 0x240000;
     __heap_start = .;
     _end = .;
     __end = .;

@@ -1,5 +1,5 @@
 
-
+#include "load.h"
 
 void cmd(const char *s1) {
     
