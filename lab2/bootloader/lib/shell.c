@@ -6,7 +6,7 @@ void cmd(const char *s1) {
     if(!strcmp(s1, "help")) {
         uart_puts("help   \t: print this help menu\n");
         uart_puts("hello  \t: print Hello World!\n");
-        uart_puts("mailbox\t: show infos of board revision and ARM memory\n");
+        uart_puts("load   \t: load kernel image through uart\n");
         uart_puts("reboot \t: reboot the device\n");
     }
     else if(!strcmp(s1, "hello")) {

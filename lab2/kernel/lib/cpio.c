@@ -15,7 +15,8 @@ int cpio_newc_parse_header(struct cpio_newc_header *this_header_pointer, char **
     if (strncmp(this_header_pointer->c_magic, CPIO_NEWC_HEADER_MAGIC, sizeof(this_header_pointer->c_magic)) != 0)
         return -1;
 
-    // transfer big endian 8 byte hex string to unsinged int and store into *filesize
+    // transfer big endian 8 byte hex string to unsinged int 
+    // data size
     *filesize = parse_hex_str(this_header_pointer->c_filesize, 8);
 
     // end of header is the pathname
@@ -29,17 +30,22 @@ int cpio_newc_parse_header(struct cpio_newc_header *this_header_pointer, char **
     // get the offset to start of data
     // | offset | data
     unsigned int offset = pathname_length + sizeof(struct cpio_newc_header);
-    // newc only supports 4 gb files
-    // oldc supports 8gb files
+    // pathname and data might be zero padding
+    // section % 4 ==0
     offset = offset % 4 == 0 ? offset : (offset + 4 - offset % 4); // padding
+    // header pointer + offset = start of data
+    // h| offset | data
     *data = (char *)this_header_pointer + offset;
 
     // get next header pointer
     if (*filesize == 0)
+        // hardlinked files handeld by setting filesize to zero
         *next_header_pointer = (struct cpio_newc_header *)*data;
     else
     {
+        // data size
         offset = *filesize;
+        // move pointer to the end of data
         *next_header_pointer = (struct cpio_newc_header *)(*data + (offset % 4 == 0 ? offset : (offset + 4 - offset % 4)));
     }
 
@@ -57,7 +63,7 @@ int cat(char *thefilepath)
     char *filepath;
     char *filedata;
     unsigned int filesize;
-    // current header pointer
+    // current header pointer, cpio start
     struct cpio_newc_header *header_pointer = (struct cpio_newc_header *)cpio_start;
 
     while (header_pointer)
@@ -78,7 +84,7 @@ int cat(char *thefilepath)
             uart_printf("\n");
             break;
         }
-        // cannot find the input file
+        // end of cpio, cannot find input file
         if (header_pointer == 0)
             uart_printf("cat: %s: No such file or directory\r\n", thefilepath);
     }

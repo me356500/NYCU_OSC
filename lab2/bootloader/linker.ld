@@ -10,7 +10,6 @@ SECTIONS
         *(.bss*)
         __bss_end = .;
     }
-    _end = .;
     __end = .;
 }
 

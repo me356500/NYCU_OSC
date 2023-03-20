@@ -15,7 +15,7 @@ void relocate(char *arg)
         newbootloader[bl_ptr] = oldbootloader[bl_ptr];
         ++bl_ptr;
     }
-
+    // run kernel in 0x60000
     void (*run)(char *) = (void (*)(char *))newbootloader;
     run(arg);
 }

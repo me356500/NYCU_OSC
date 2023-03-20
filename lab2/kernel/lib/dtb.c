@@ -29,14 +29,15 @@ void fdt_traverse(dtb_callback callback)
     // to locate struct start
     char *dt_struct_ptr = (char *)((char *)header + endian_big2little(header->off_dt_struct));
     // offset in bytes of strings block from beginning of header
-    // to locate struct start
-    // fdt_prop use string_ptr + nameoff to get the name
+    // to locate string start
+    // fdt_prop use string_ptr + nameoff to get the pathname
     char *dt_strings_ptr = (char *)((char *)header + endian_big2little(header->off_dt_strings));
 
-    // parse from begin to end
+    // parse from struct begin to end
     char *end = (char *)dt_struct_ptr + struct_size;
     char *pointer = dt_struct_ptr;
 
+    // according to lexical structure
     while (pointer < end)
     {
         // lexical big-endian-32-bit integer
@@ -55,7 +56,7 @@ void fdt_traverse(dtb_callback callback)
             // allign
             pointer += (4 - (unsigned long long)pointer % 4);
             break;
-            
+
         // end of node's representation
         case FDT_END_NODE:
             break;
@@ -75,7 +76,7 @@ void fdt_traverse(dtb_callback callback)
 
             // check node is initrd-start/end and set cpio_start/end address
             callback(token_type, name, pointer, len);
-            // byte string of length len
+            // address, byte string of length len
             pointer += len;
             // followed by zeroed padding bytes
             if ((unsigned long long)pointer % 4 != 0)
