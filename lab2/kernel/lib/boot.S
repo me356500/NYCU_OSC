@@ -4,6 +4,7 @@
 
 _start:
   // read cpu id, stop slave cores
+  // system register need use mrs
     mrs     x1, mpidr_el1
     and     x1, x1, #3
     cbz     x1, master
@@ -22,10 +23,12 @@ master:
 
 bssinitloop:  
     cbz     w2, kernel
+    // save 0 and plus 8
     str     xzr, [x1], #8
     sub     w2, w2, #1
     cbnz    w2, bssinitloop
 
 kernel:
+    // bl save next command to lr register
     bl      main
     b       busyloop

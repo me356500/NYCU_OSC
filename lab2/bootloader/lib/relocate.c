@@ -1,4 +1,4 @@
-
+// from linker script
 extern char __end;
 extern char __start;
 
@@ -9,6 +9,7 @@ void relocate(char *arg)
     char *newbootloader = (char *)0x60000;
 
     unsigned long bl_ptr = 0;
+    // copying
     while (bootloader_size--)
     {
         newbootloader[bl_ptr] = oldbootloader[bl_ptr];
@@ -18,3 +19,4 @@ void relocate(char *arg)
     void (*run)(char *) = (void (*)(char *))newbootloader;
     run(arg);
 }
+// can be verifying in gdb

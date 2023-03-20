@@ -27,6 +27,8 @@ void uart_init()
     r |= (2<<12)|(2<<15);    // set alt5 for gpio14 and gpio15
     *GPFSEL1 = r;          // control gpio pin 10~19
     *GPPUD = 0;            // enable pins 14 and 15
+    // gpio pull up/down 
+    // show hackmd notes to TA
     r=150; while(r--) { asm volatile("nop"); }
     *GPPUDCLK0 = (1<<14)|(1<<15);
     r=150; while(r--) { asm volatile("nop"); }

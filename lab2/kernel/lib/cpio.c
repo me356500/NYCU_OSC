@@ -58,7 +58,7 @@ int cat(char *thefilepath)
             uart_printf("error\n");
             break;
         }
-
+        // parse until filepath is same as input
         if (!strcmp(thefilepath, filepath))
         {
             for (unsigned int i = 0; i < filesize; i++)

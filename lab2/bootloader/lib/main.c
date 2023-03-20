@@ -1,7 +1,7 @@
 
 
 
-int relocated = 0;
+int relocated = 1;
 
 char *dtb_base;
 
@@ -10,9 +10,9 @@ void main(char *arg)
     uart_init();
     
     dtb_base = arg;
-    if (!relocated)
-    {
-        relocated = 1;
+    // relocate copies bootloader program from 0x80000 to 0x60000
+    if (relocated) {
+        relocated = 0;
         relocate(arg);
     }
     uart_puts("\x1b[2J\x1b[H");

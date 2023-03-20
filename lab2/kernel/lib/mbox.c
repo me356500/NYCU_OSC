@@ -27,6 +27,9 @@ volatile unsigned int  __attribute__((aligned(16))) mbox[36];
  */
 int mbox_call(unsigned char ch)
 {
+    // ch & 0xf setting channel
+    // &~0xF send setting of mbox
+    // we use 8 (cpu -> gpu)
     unsigned int r = (((unsigned int)((unsigned long)&mbox)&~0xF) | (ch&0xF));
     /* wait until we can write to the mailbox */
     do{asm volatile("nop");}while(*MBOX_STATUS & MBOX_FULL);
@@ -55,7 +58,7 @@ void get_board_revision(){
     mbox[5] = 0; // value buffer
     // tags end
     mbox[6] = END_TAG;
-
+    // channel 8 is cpu -> gpu
     mbox_call(8); // message passing procedure call, you should implement it following the 6 steps provided above.
     uart_puts("Board Revision: 0x");
     uart_hex(mbox[5]);// it should be 0xa020d3 for rpi3 b+
@@ -75,7 +78,7 @@ void get_ARM_memory() {
     mbox[6] = 0;                    // size in bytes
     // tags end
     mbox[7] = END_TAG;
-
+    // channel 8 is cpu -> gpu
     mbox_call(8);
     // send the message to the GPU and receive answer
     
