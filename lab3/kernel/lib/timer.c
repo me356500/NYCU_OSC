@@ -90,11 +90,9 @@ void add_timer(timer_callback_t callback, void* arg, unsigned long long expire_t
     struct timer_event *entry = (struct timer_event*)smalloc(sizeof(struct timer_event));
     
     //uart_printf("size : %d\n",n);
-    char *tmp = (char *)smalloc(20);
-    entry->args = tmp;
-    strcpy(tmp, (char *)arg);
-    
-    entry->args = tmp;
+    entry->args = (char *)smalloc(20);
+    strcpy(entry->args, (char *)arg);
+
     entry->callback = callback;
     entry->expire_time = expire_time;
     entry->listhead.next = &(entry->listhead);

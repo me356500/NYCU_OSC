@@ -72,7 +72,7 @@ void sync_el0_64_handler() {
 
 void highp() {
     uart_async_printf("high prior start\n");
-    uart_async_printf("high prior start\n");
+    uart_async_printf("high prior end\n");
 
 }
 
@@ -82,6 +82,7 @@ void lowp() {
     uart_async_putc('\r');  // to trigger pop_task
     for(int i = 0; i < 100000; ++i);
     uart_async_printf("low prior end\n");
+     for(int i = 0; i < 100000; ++i);
 }
 
 void test_preemption() {
