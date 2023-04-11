@@ -21,9 +21,9 @@
 char uart_tx_buffer[MAX_BUF_SIZE];
 char uart_rx_buffer[MAX_BUF_SIZE];
 
-int uart_tx_buffer_r_idx = 0;
+int uart_tx_buffer_r_idx = 1;
 int uart_tx_buffer_w_idx = 0;
-int uart_rx_buffer_r_idx = 0;
+int uart_rx_buffer_r_idx = 1;
 int uart_rx_buffer_w_idx = 0;
 
 /**
@@ -54,6 +54,10 @@ void uart_init()
     *AUX_MU_IIR = 0x6;     // clear FIFO
     *AUX_MU_CNTL = 3;      // enable Tx, Rx
     
+    for(int i = 0; i < MAX_BUF_SIZE; ++i) {
+        uart_tx_buffer[i] = '\0';
+        uart_rx_buffer[i] = '\0';
+    }
 }
 
 /**
@@ -72,10 +76,11 @@ void uart_send(unsigned int c) {
 char uart_getc() {
     char r;
     /* wait until something is in the buffer */
+    //uart_puts("getc\n");
     do{
         asm volatile("nop");
     }while(!(*AUX_MU_LSR & 0x01));
-
+    //uart_puts("read\n");
     /* read it and return */
     r = (char)(*AUX_MU_IO);
     /* convert carriage return to newline */
@@ -161,9 +166,11 @@ void uart_async_putc(char c) {
 char uart_async_getc() {
     // is empty
     // if empty rx buffer get a byte from IO
+    //uart_puts("call rx\n");
     while((uart_rx_buffer_w_idx == uart_rx_buffer_r_idx))
         enable_mini_uart_rx_interrupt();
     
+    //uart_puts("agetc\n");
     disable_interrupt();
     // get a byte from rx buffer
     char c = uart_rx_buffer[uart_rx_buffer_r_idx++];
@@ -238,7 +245,8 @@ void uart_tx_interrupt_handler() {
 
     // sent a byte to transmit fifo
     disable_interrupt();
-    *AUX_MU_IO = (unsigned int)uart_tx_buffer[uart_tx_buffer_r_idx++];
+    // *AUX_MU_IO = (unsigned int)uart_tx_buffer[uart_tx_buffer_r_idx++];
+    uart_send(uart_tx_buffer[uart_tx_buffer_r_idx++]);
     uart_tx_buffer_r_idx %= MAX_BUF_SIZE;
     enable_interrupt();
 
@@ -246,16 +254,18 @@ void uart_tx_interrupt_handler() {
 }
 
 void uart_rx_interrupt_handler() {
-    // check full
-    // full then return
+    // is holding byte
+    //uart_puts("rx handler 111\n");
     if((uart_rx_buffer_w_idx + 1) % MAX_BUF_SIZE == uart_rx_buffer_r_idx) {
         disable_mini_uart_rx_interrupt();
         return;
     }
 
     // get a byte from receive fifo
+    //uart_puts("rx handler\n");
     disable_interrupt();
     uart_rx_buffer[uart_rx_buffer_w_idx++] = (char)(*AUX_MU_IO);
+    //uart_send(uart_rx_buffer[uart_rx_buffer_w_idx++])
     uart_rx_buffer_w_idx %= MAX_BUF_SIZE;
     enable_interrupt();
 

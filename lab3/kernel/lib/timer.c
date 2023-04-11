@@ -84,28 +84,26 @@ void print_timer(){
     }
 }
 
-void add_timer(timer_callback_t callback,const void* arg, unsigned long long expire_time){ 
-    // current time
+void add_timer(timer_callback_t callback, void* arg, unsigned long long expire_time){ 
 
-    // initialize timer event
-    // critical section
-   
-
-    struct timer_event *entry;
-
-    disable_interrupt();
-
-    entry = (struct timer_event*)smalloc(sizeof(struct timer_event));
-    entry->args = (char *)smalloc(sizeof(arg));
-    memcpy(entry->args, arg, sizeof(arg));
-
-    enable_interrupt();
-
+   // disable_interrupt();
+    struct timer_event *entry = (struct timer_event*)smalloc(sizeof(struct timer_event));
     
+    //uart_printf("size : %d\n",n);
+    char *tmp = (char *)smalloc(20);
+    entry->args = tmp;
+    strcpy(tmp, (char *)arg);
+    
+    entry->args = tmp;
     entry->callback = callback;
     entry->expire_time = expire_time;
     entry->listhead.next = &(entry->listhead);
     entry->listhead.prev = &(entry->listhead);
+    //enable_interrupt();
+    
+    //uart_printf("args size : %d : '%s'\n",strlen(entry->args), entry->args);
+    //uart_printf("arg size : %d : '%s'\n",strlen(entry->args), entry->args);
+   
 
 
     disable_interrupt();
@@ -131,8 +129,6 @@ void pop_timer() {
 
     timer_event_t *first = list_entry(timer_event_list.next, timer_event_t, listhead);
    
-    list_head_t *listptr;
-
     disable_interrupt();
     list_del(&first->listhead);     // del first node
     enable_interrupt();
@@ -143,7 +139,7 @@ void pop_timer() {
     disable_interrupt();
     
     if(list_empty(&timer_event_list)) {
-        core_timer_interrupt_disable();   // turn off timer interrupt
+        core_timer_interrupt_disable_alternative();   // turn off timer interrupt
     }
     else {
         set_core_timer_interrupt_first();
@@ -192,10 +188,9 @@ void core_timer_handler() {
     pop_timer();
 }
 
-void two_second_alert(char *str) {
-
+void two_second_alert(const char *str) {
+    //int n = strlen(str);
+    //uart_printf("tsa : size : %d\n",n);
     uart_printf("'%s': seconds after booting : %d\n", str, get_clock_time());
-    //disable_interrupt();
-    add_timer(two_second_alert, str, 2 * get_clock_freq()  + get_clock_tick());
-    //enable_interrupt();
+    add_timer(two_second_alert, str, (unsigned long long)((unsigned long long)2 * get_clock_freq() + get_clock_tick()));
 }

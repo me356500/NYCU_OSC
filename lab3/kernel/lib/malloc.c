@@ -1,3 +1,5 @@
+
+
 extern char __heap_start;
 
 char *__heap_top = &__heap_start;
@@ -6,7 +8,11 @@ char *__heap_top = &__heap_start;
 // move heap pointer
 void *smalloc(unsigned long size)
 {
+    //uart_puts("malloc size : ");
+    //uart_dec(size);
+    //uart_puts("\n");
     char *r = __heap_top;
+    size = (size + 0x10 - 1) / 0x10 * 0x10;
     __heap_top += size;
     return r;
 }

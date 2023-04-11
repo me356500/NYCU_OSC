@@ -23,8 +23,6 @@ void add_task(task_callback_t callback, int priority){
     else {
         task_t *now;
         list_head_t *listptr;
-        //uart_async_putc('g');
-        //uart_async_putc('\n');
         int inst = 0;
         list_for_each(listptr, &task_list) {
             now = list_entry(listptr, task_t, listhead);

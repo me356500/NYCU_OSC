@@ -203,23 +203,4 @@ set_exception_vector_table:
     ret
 
 
-// save system registers to stack
-.macro save_sys_reg
-    sub sp, sp, 3 * 8
-    mrs x0, spsr_el1
-    mrs x1, elr_el1
-    mrs x2, sp_el0
-    stp x0, x1, [sp, 0]
-    str x2, [sp, 16]
-.endm
-
-// load system registers from stack
-.macro load_sys_reg
-    ldp x0, x1, [sp, 0]
-    ldr x2, [sp, 16]
-    msr spsr_el1, x0
-    msr elr_el1, x1
-    msr sp_el0, x2
-    add sp, sp, 3 * 8
-.endm
 

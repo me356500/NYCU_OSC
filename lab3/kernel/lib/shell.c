@@ -1,14 +1,17 @@
 
 #include "shell.h"
 #include "uart.h"
+#include "timer.h"
 
 void cmd(char *s1) {
     
     char *token;
     char arg[20][50];
+    
     for(int i = 0; i < 20; ++i)
         for(int j = 0; j < 50; ++j)
             arg[i][j] = '\0';
+    
     int i = 0;
     token = strtok(s1, " ");
 
@@ -71,12 +74,20 @@ void cmd(char *s1) {
     }
     else if (!strcmp(arg[0], "sto") && i == 3) {
         // setTimeout MESSAGE SECONDS
+        //char *sto = (char *)smalloc(20);
+        //strcpy(sto, arg[1]);
         uart_printf("'%s' Set Timeout : %d\n", arg[1], atoi(arg[2]) * get_clock_freq() + get_clock_tick());
         add_timer(uart_puts, arg[1], atoi(arg[2]) * get_clock_freq() + get_clock_tick());
     }
     else if (!strcmp(arg[0], "tsa") && i == 2) {
         // tsa  MESSAGE
-        add_timer(two_second_alert, arg[1], 2 * get_clock_freq() + get_clock_tick());
+        //uart_printf("%d\n", get_clock_time());
+        //uart_printf("t1\n", get_clock_time());
+        //char *tsa = (char *)smalloc(20);
+        //strcpy(tsa, arg[1]);
+
+        add_timer(two_second_alert, arg[1], (unsigned long long)((unsigned long long)2 * get_clock_freq() + get_clock_tick()));
+        
     }
     else if (!strcmp(arg[0], "async") && i == 1) {
         char c = ' ';
@@ -85,7 +96,7 @@ void cmd(char *s1) {
             c = uart_async_getc();
             uart_async_putc(c);
         }
-        uart_puts("\n\n");
+        uart_puts("\n");
 
     }
     else if(!strcmp(arg[0], "preempt") && i == 1) {
@@ -110,7 +121,7 @@ void shell() {
         while( c != '\n') {
             c = uart_getc();
 
-             if(c == '\n') {
+            if(c == '\n') {
                 uart_puts("\n");
             }
             else {

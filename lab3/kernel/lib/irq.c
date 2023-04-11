@@ -11,8 +11,8 @@ void disable_interrupt(){
     asm("msr daifset, 0xf");
 }
 
-#define UART_IRQ_PRIORITY 3
-#define TIMER_IRQ_PRIORITY 4
+#define UART_IRQ_PRIORITY 4
+#define TIMER_IRQ_PRIORITY 3
 
 void irq_handler(unsigned long long x0)
 {
@@ -39,15 +39,18 @@ void irq_handler(unsigned long long x0)
     // check bit 1 to determine interrupt
     else if (*CORE0_INTERRUPT_SOURCE & INTERRUPT_SOURCE_CNTPNSIRQ)
     {
-        core_timer_interrupt_disable_alternative();
+        core_timer_interrupt_disable();
+        //uart_printf("a1\n");
         add_task(core_timer_handler, TIMER_IRQ_PRIORITY);
+        //uart_printf("a2\n");
         pop_task();
+        //uart_printf("a3\n");
         core_timer_interrupt_enable();
     }
 }
 void invalid_exception_handler(unsigned long long x0) {
-    uart_async_printf("invalid exception : 0x%x\n", x0);
-    uart_getc();
+    uart_printf("invalid exception : 0x%x\n", x0);
+    //uart_getc();
 }
 
 void cpacr_el1_off(){

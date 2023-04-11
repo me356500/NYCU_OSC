@@ -1,3 +1,4 @@
+#define NULL ((void *)0)
 
 int isalpha(char c){
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
@@ -19,16 +20,32 @@ int isxdigit(int c) {
     return isdigit(c) || (toupper(c) >= 'A' && toupper(c) <= 'F');
 }
 
-int strlen(const char *s) {
-    int len = 0;
-    while (*s++) len++;
+unsigned long long strlen(const char *str) {
+   
+    unsigned long long len = 0;
+    while((unsigned char)*str++) {
+        ++len;
+    }
+       
     return len;
 }
+
 
 char *strcpy(char *dest, const char *src) {
     char *ret = dest;
     while ((*dest++ = *src++));
     return ret;
+}
+
+void _strcpy(char *dest, char *src){
+  if (dest==NULL||src==NULL) 
+    return;
+    
+  while(*src!=NULL){
+    *dest = *src;
+    dest++;
+    src++;
+  }
 }
 
 int strcmp(const char *s1, const char *s2) {
@@ -85,10 +102,10 @@ char* strtok(char* str, const char* delimiters) {
     }
 }
 
-int atoi(char* str) {
-    int result = 0;
-    int sign = 1;
-    int i = 0;
+long long atoi(char* str) {
+    long long result = 0;
+    long long sign = 1;
+    long long i = 0;
 
     if (str[0] == '-') {
         sign = -1;
