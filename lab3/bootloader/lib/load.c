@@ -9,7 +9,6 @@ void load() {
     int idx = 0;
     char sz[50] = {};
     char c;
-    
     // receiving str size
     while(1) {
         c = uart_getc();

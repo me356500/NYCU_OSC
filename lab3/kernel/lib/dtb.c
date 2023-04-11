@@ -15,8 +15,9 @@ void fdt_traverse(dtb_callback callback)
     // fdt header magic 0xD00DFEED (big-endian)
     if (endian_big2little(header->magic) != 0xD00DFEED)
     {
-        uart_printf("fdt_traverse: wrong magic in fdt_traverse\n");
+        uart_puts("fdt_traverse: wrong magic in fdt_traverse\n");
         uart_printf("expect: 0XD00DFEED, get: %x\n", endian_big2little(header->magic));
+
         return;
     }
  
@@ -51,7 +52,6 @@ void fdt_traverse(dtb_callback callback)
         // begin of node's representation
         case FDT_BEGIN_NODE:
             // move node's unit name
-            // string end \0
             pointer += strlen(pointer);
             // node name is followed by zeroed padding bytes
             // allign
@@ -83,7 +83,6 @@ void fdt_traverse(dtb_callback callback)
             if ((unsigned long long)pointer % 4 != 0)
                 pointer += 4 - (unsigned long long)pointer % 4; // alignment 4 byte
             break;
-        // ** cant skip
         // ignore NOP
         case FDT_NOP:
             break;

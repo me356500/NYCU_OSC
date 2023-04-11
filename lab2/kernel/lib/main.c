@@ -3,6 +3,8 @@
 extern char *dtb_base;
 void main(char *arg)
 {
+    // argument register x0
+    // pass dtb load address
     dtb_base = arg;
     uart_init();
    // uart_puts("test1");

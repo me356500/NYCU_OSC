@@ -7,7 +7,6 @@ import time
 # /dev/ttys002
 # designate port and the baut rate
 tty = serial.Serial("/dev/tty.usbserial-0001", 115200, timeout=0.5) 
-# acquire the file size
 file_stats = os.stat("kernel8.img")
 
 # issue request and tell the size of img to rec
