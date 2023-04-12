@@ -54,12 +54,12 @@ void uart_init()
     *AUX_MU_IIR = 0x6;     // clear FIFO
     *AUX_MU_CNTL = 3;      // enable Tx, Rx
     
-    /*
+    
     for(int i = 0; i < MAX_BUF_SIZE; ++i) {
         uart_tx_buffer[i] = '\0';
         uart_rx_buffer[i] = '\0';
     }
-    */
+    
 }
 
 /**
