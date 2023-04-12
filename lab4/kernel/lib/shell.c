@@ -67,7 +67,7 @@ void cmd(char *s1) {
         uart_printf("%s\n", st);
     }
     else if(!strcmp(arg[0], "exec") && i == 1) {
-        execfile("./test");
+        execfile("test");
     }
     else if (!strcmp(arg[0], "sto") && i == 3) {
         // setTimeout MESSAGE SECONDS

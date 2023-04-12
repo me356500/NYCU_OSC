@@ -17,9 +17,9 @@ def passImg(f, s):
     #tty.write("boot\n".encode('utf-8'))
     time.sleep(delay)
 
-    time.sleep(delay*1000)
+    time.sleep(delay*100)
     tty.write(str(file_stats.st_size).encode('utf-8'))
-    time.sleep(delay*1000)
+    time.sleep(delay*100)
 
     time.sleep(delay*100)
     tty.write("\n".encode('utf-8'))
@@ -43,7 +43,7 @@ def passImg(f, s):
 def main():
     parser = ArgumentParser()
     parser.add_argument("-i", help="kernel image of tty", default="./kernel8.img")
-    parser.add_argument("-s", help="send kernel image to which serial console", default="/dev/ttys004")
+    parser.add_argument("-s", help="send kernel image to which serial console", default="/dev/tty.usbserial-0001")
     args = parser.parse_args()
 
     passImg(args.i, args.s)
