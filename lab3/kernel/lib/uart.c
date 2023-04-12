@@ -14,21 +14,27 @@
 #define AUX_MU_STAT     ((volatile unsigned int*)(MMIO_BASE+0x00215064))
 #define AUX_MU_BAUD     ((volatile unsigned int*)(MMIO_BASE+0x00215068))
 
-//#define ENABLE_IRQS_1 ((volatile unsigned int*)((MMIO_BASE+0xB000)+0x210))
+#define ENABLE_IRQS_1 ((volatile unsigned int*)(MMIO_BASE + 0x0000b210))
 //#define IRQ_PENDING_1 ((volatile unsigned int*)((MMIO_BASE+0xB000)+0x204))
 //#define IRQ_PENDING_1_AUX_INT (1 << 29)
 
 char uart_tx_buffer[MAX_BUF_SIZE];
 char uart_rx_buffer[MAX_BUF_SIZE];
 
-int uart_tx_buffer_r_idx = 1;
-int uart_tx_buffer_w_idx = 0;
-int uart_rx_buffer_r_idx = 1;
-int uart_rx_buffer_w_idx = 0;
+static unsigned int uart_tx_buffer_r_idx;
+static unsigned int uart_tx_buffer_w_idx;
+static unsigned int uart_rx_buffer_r_idx;
+static unsigned int uart_rx_buffer_w_idx;
 
 /**
  * Set baud rate and characteristics (115200 8N1) and map to GPIO
  */
+void init_idx() {
+    uart_tx_buffer_r_idx = 1;
+    uart_tx_buffer_w_idx = 0;
+    uart_rx_buffer_r_idx = 1;
+    uart_rx_buffer_w_idx = 0;
+}
 void uart_init()
 {
     register unsigned int r;
@@ -54,10 +60,11 @@ void uart_init()
     *AUX_MU_IIR = 0x6;     // clear FIFO
     *AUX_MU_CNTL = 3;      // enable Tx, Rx
     
+    /*
     for(int i = 0; i < MAX_BUF_SIZE; ++i) {
         uart_tx_buffer[i] = '\0';
         uart_rx_buffer[i] = '\0';
-    }
+    }*/
 }
 
 /**

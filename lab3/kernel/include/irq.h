@@ -18,10 +18,9 @@
 
 
 
-void enable_int();
-void disable_int();
+void enable_interrupt();
+void disable_interrupt();
 void irq_handler();
-void concurrent_irq_handler();
 void invalid_exception_handler(unsigned long long x0);
 void cpacr_el1_off();
 void sync_el0_64_handler();

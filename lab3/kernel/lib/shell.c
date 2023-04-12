@@ -57,17 +57,13 @@ void cmd(char *s1) {
     }
     else if(!strcmp(arg[0], "malloc")) {
         uart_puts("Allocating string abc\n");
-        char *st = (char*)smalloc(8);
+        char *st = (char*)smalloc(16);
         // uart_puts("test1\n");
         st[0] = 'a';
         st[1] = 'b';
         st[2] = 'c';
         st[3] = '\0';
-        uart_send(st[0]);
-        uart_send(st[1]);
-        uart_send(st[2]);
-
-        uart_puts("\n");
+        uart_printf("%s\n", st);
     }
     else if(!strcmp(arg[0], "exec") && i == 1) {
         execfile("./test");

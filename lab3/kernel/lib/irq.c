@@ -2,13 +2,12 @@
 
 #define AUX_MU_IIR  ((volatile unsigned int*)(MMIO_BASE+0x00215048))
 
-void enable_interrupt(){
-    asm("msr daifclr, 0xf");
-
+void enable_interrupt() {
+    asm volatile("msr DAIFClr, 0xf");
 }
 
-void disable_interrupt(){
-    asm("msr daifset, 0xf");
+void disable_interrupt() {
+    asm volatile("msr DAIFSet, 0xf");
 }
 
 #define UART_IRQ_PRIORITY 4
