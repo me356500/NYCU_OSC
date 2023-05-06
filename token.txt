@@ -1,4 +1,9 @@
 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
 sudo screen /dev/tty.usbserial-0001 115200
 git clone https://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@github.com/me356500/OSDI.git
+git remote set-url origin https://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@github.com/me356500/osc2023.git
 git remote set-url origin https://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@github.com/me356500/OSDI.git
+
+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
+
+git remote set-url origin https://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@github.com/me356500/osc2023.git

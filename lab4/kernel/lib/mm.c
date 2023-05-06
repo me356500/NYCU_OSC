@@ -46,15 +46,19 @@ void page_frame_init_merge()
         for (;;)
         {
             // f2 = buddy order of f1
+            // 2 ^ order = buddy
             f2 = f1 ^ (1 << i);
 
+            // if counted buddy is out of boundary
             if (f2 >= pf_count)
                 break;
 
+            // merge same order page frame
             if (pf_entries[f1].status == FREE && pf_entries[f2].status == FREE &&
                 pf_entries[f1].order == i && pf_entries[f2].order == i)
                 ++pf_entries[f1].order;
-            
+            // 0 order 2 -> move to idx 8
+            // move to next non buddy frame
             f1 += (1 << (i + 1));
 
             if (f1 >= pf_count)
@@ -88,7 +92,12 @@ void page_frame_init_merge()
 
 void *page_frame_allocation(uint32_t page_num)
 {
-
+    /*  
+        Time comeplexity : O(1)
+        We only have to check the constant page frame freelist 
+        and get the page
+    
+    */
     if (page_num == 0)
         return (void *)0;
 
@@ -136,11 +145,12 @@ void *page_frame_allocation(uint32_t page_num)
     uart_async_printf("released redundant page index: %d\n", bd_idx);
     uart_async_printf("released redundant page order: %d\n", alloc_page_order);
 #endif
-
+        // add back to free list
         frame_entry_list_head *bd_felhp = idx2address(bd_idx);
         list_add(&bd_felhp->listhead, &pf_freelists[alloc_page_order]);
     }
 
+    // set origin size allocated page
     pf_entries[idx].order = order;
     pf_entries[idx].status = ALLOCATED;
 
@@ -157,19 +167,29 @@ void page_frame_free(void *address)
     uart_async_printf("--------------------------------------------\n");
     uart_async_printf("freeing: %x\n", address);
 #endif
+
+    /*
+        Time complexity : O(1)
+        Simply del the entry from free list
+        and iteratively merge the page frame in constant time
+    */
+    // get entry idx
     frame_entry_list_head *page = (frame_entry_list_head *)address;
     int idx = address2idx(page);
     int order = pf_entries[idx].order;
+    // set it free and put into freelist
     pf_entries[idx].status = FREE;
     list_add(&page->listhead, &pf_freelists[order]);
 
+    // check buddy
     int bd_idx = idx ^ (1 << order);
 #ifdef DEMO
     uart_printf("free page order: %d\n", order);
     uart_printf("free page index: %d\n", idx);
 #endif
 
-    // Merge
+    // merge buddy, until buddy is not free or not same order
+    // merge iteratively
     while (order < MAX_ORDER - 1 && pf_entries[bd_idx].status == FREE && pf_entries[bd_idx].order == order)
     {
 #ifdef DEMO
@@ -182,6 +202,7 @@ void page_frame_free(void *address)
         tmp = (frame_entry_list_head *)(idx2address(bd_idx));
         list_del(&tmp->listhead);
 
+        // set it back to free list
         idx &= bd_idx;
         pf_entries[idx].order = ++order; 
         tmp = (frame_entry_list_head *)(idx2address(idx));
@@ -195,6 +216,8 @@ void page_frame_free(void *address)
 
 void chunk_slot_allocator_init()
 {
+    // malloc as same number of page number
+    //
     cs_entries = smalloc(pf_count * sizeof(chunk_slot_entry));
     for (int i = 0; i < pf_count; ++i)
         cs_entries[i].status = FREE;
@@ -202,18 +225,22 @@ void chunk_slot_allocator_init()
 
 void chunk_slot_listhead_init()
 {
+    // 9 different size chunk
     for (int i = 0; i < 9; ++i)
         INIT_LIST_HEAD(&cs_freelists[i]);
 }
 
 void *chunk_slot_allocation(uint32_t size)
 {
+    // return enough size chunk slot
+    // 16 32 64... log2
     int size_idx = find_fit_chunk_slot(size);
 #ifdef DEMO
         uart_printf("alloc chunk slot size: %d\n", chunk_slot_size[size_idx]);
 #endif
     chunk_slot_list_head *cslh;
 
+    // if no free chunk
     if (list_empty(&cs_freelists[size_idx]))
     {
         void *page_address = page_frame_allocation(1);
@@ -223,7 +250,7 @@ void *chunk_slot_allocation(uint32_t size)
         uart_printf("Need page allocation !!! \n");
         uart_printf("Split page %d into chunks of size %d\n", page_idx, chunk_slot_size[size_idx]);
 #endif
-
+        // split pages to free chunk
         cs_entries[page_idx].size = size_idx;
         cs_entries[page_idx].status = ALLOCATED;
 
@@ -233,7 +260,7 @@ void *chunk_slot_allocation(uint32_t size)
             list_add_tail(&cslh->listhead, &cs_freelists[size_idx]);
         }
     }
-
+    // delete from free list
     cslh = (chunk_slot_list_head *)cs_freelists[size_idx].next;
     list_del(&cslh->listhead);
 
@@ -246,9 +273,10 @@ void *chunk_slot_allocation(uint32_t size)
 
 void chunk_slot_free(void *address)
 {
+    // get chunk index
     int page_idx = address2idx(address);
     chunk_slot_list_head *cslh = (chunk_slot_list_head *)address;
-
+    // add to free list
     int size = cs_entries[page_idx].size;
     list_add(&cslh->listhead, &cs_freelists[size]);
 
@@ -259,31 +287,41 @@ void chunk_slot_free(void *address)
 
 void memory_reserve(void *start, void *end)
 {
+    // start and end address
     start = (void *)((uint64_t) start / PAGE_SIZE * PAGE_SIZE);
     end = (void *)(((uint64_t) end + PAGE_SIZE - 1) / PAGE_SIZE * PAGE_SIZE);
 
     uart_async_printf("start: %d, end: %d has been reserved\n", (uint64_t)start, (uint64_t)end);
 
+    // traverse page and mark allocated to reserve memory
     for (void *tmp = start; tmp < end; tmp = (void *)((uint64_t) tmp + PAGE_SIZE))
         pf_entries[address2idx(tmp)].status = ALLOCATED;
 }
 
 void memory_init()
 {
+    // lab given address
+    // usable memory region
     page_frame_allocator_init((void *)0, (void *)0x3c000000);
     chunk_slot_allocator_init();
 
+    // spin table for multicore boot
     memory_reserve((void *)0, (void *)0x1000);
+    // heap and start kernel image 
     memory_reserve(&__text_start, &__heap_start);
+    // initramfs get from device tree
     memory_reserve(cpio_start, cpio_end);
+    // simple allocator
     memory_reserve(&__startup_allocator_start, &__startup_allocator_end);
 
+    // merge after reserve 
     page_frame_init_merge();
     chunk_slot_listhead_init();
 }
 
 void *malloc(uint32_t size)
 {
+    // if smaller than page, allocate chunk
     if (size < PAGE_SIZE)
     {
 #ifdef DEMO
@@ -292,6 +330,7 @@ void *malloc(uint32_t size)
 #endif
         return chunk_slot_allocation(size);
     }
+    // if larger or equal than page, allocate page
     else
     {
         uint32_t pn = (size + PAGE_SIZE - 1) / PAGE_SIZE;
@@ -310,9 +349,8 @@ void page_frame_allocator_test()
     pages[0] = malloc(1*PAGE_SIZE + 123);
     pages[1] = malloc(1*PAGE_SIZE);
     pages[2] = malloc(3*PAGE_SIZE + 321);
-    // release redundant
     pages[3] = malloc(1*PAGE_SIZE + 31);
-    //
+
     pages[4] = malloc(1*PAGE_SIZE + 21);
     pages[5] = malloc(1*PAGE_SIZE);
 
@@ -339,10 +377,11 @@ void chunk_slot_allocator_test()
     char *chunk[100];
     
     int tmp = PAGE_SIZE / 512;
-
+    // allocated page
+    // use all chunk slot of allocated page
     for (int i = 0; i <= tmp; ++i)
         chunk[i] = malloc(0x101);
-    
+    // then it will ask another page
     chunk[tmp + 1] = malloc(0x11);
     chunk[tmp + 2] = malloc(0x15);
 

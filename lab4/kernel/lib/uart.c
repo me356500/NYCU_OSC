@@ -208,14 +208,16 @@ int uart_async_printf(char *fmt, ...)
 }
 
 void enable_mini_uart_interrupt() {
-    uart_puts("a1\n");
+    //uart_puts("a1\n");
     enable_mini_uart_rx_interrupt();
-    uart_puts("a2\n");
+    //uart_puts("a2\n");
     enable_mini_uart_tx_interrupt();
-    uart_puts("a3\n");
+    //uart_puts("a3\n");
+
     // second level interrupt controller
+    // might be block
     *ENABLE_IRQS_1 |= 1 << 29;
-    uart_puts("a4\n");
+    //uart_puts("a4\n");
 }
 
 // rx interrupt bit 1
@@ -280,7 +282,7 @@ void uart_rx_interrupt_handler() {
     uart_rx_buffer_w_idx %= MAX_BUF_SIZE;
     enable_interrupt();
 
-   // enable_mini_uart_rx_interrupt();
+    // enable_mini_uart_rx_interrupt();
 }
 
 

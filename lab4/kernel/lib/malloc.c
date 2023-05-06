@@ -6,6 +6,7 @@ char * startup_allocator_start = (char *) &__startup_allocator_start;
 void *smalloc(unsigned long size)
 {
     char *r = startup_allocator_start;
+    //
     size = (size + 0x10 - 1) / 0x10 * 0x10;
     startup_allocator_start += size;
     return r;

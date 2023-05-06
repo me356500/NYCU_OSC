@@ -4,7 +4,8 @@
 .endm
 // entry size is 0x80 aka align 7
 
-.align 11 // vector table should be aligned to 0x800
+// vector table should be aligned to 0x800
+.align 11 
 .global exception_vector_table
 exception_vector_table:
 
@@ -32,10 +33,10 @@ exception_vector_table:
     ventry	fiq_el0_32			// FIQ 32-bit EL0
     ventry	error_el0_32		// Error 32-bit EL0
 
-.macro save_all // .macro 是像是 define 的東西
-    sub sp, sp, 32 * 12 // 把sp往下移，清出一段空間因為要放register的值
-    stp x0, x1, [sp ,16 * 0] // 一次把兩個register的值放進stack
-    stp x2, x3, [sp ,16 * 1] //一個register 8 byte，所以指定offset以16為單位
+.macro save_all         // .macro 是像是 define 的東西
+    sub sp, sp, 32 * 12         // 把sp往下移，清出一段空間因為要放register的值
+    stp x0, x1, [sp ,16 * 0]    // 一次把兩個register的值放進stack
+    stp x2, x3, [sp ,16 * 1]    //一個register 8 byte，所以指定offset以16為單位
     stp x4, x5, [sp ,16 * 2]
     stp x6, x7, [sp ,16 * 3]
     stp x8, x9, [sp ,16 * 4]
@@ -51,12 +52,14 @@ exception_vector_table:
     stp x28, x29, [sp ,16 * 14] // stp存一對，str存一個
     str x30, [sp, 16 * 15]      // x30是lr暫存器
     
-    //using for nested interrupt (Advanced exercise 2)
-    mrs x0,  spsr_el1
-    str x0,  [sp, 16 * 16]    // might be 16 bit align
+    // nested interrupt
+    // save current system register
+    // save spsr_el1 and elr_el1
+    mrs x0,  spsr_el1           //
+    str x0,  [sp, 16 * 16]      // might be 16 bit align
     mrs x0,  elr_el1
     str x0,  [sp, 16 * 17]
-    ldp x0, x1, [sp ,16 * 0]  // restore x0 argument register
+    ldp x0, x1, [sp ,16 * 0]    // restore x0 argument register
 .endm
 
 
@@ -78,15 +81,15 @@ exception_vector_table:
     ldp x28, x29, [sp ,16 * 14]
     ldr x30, [sp, 16 * 15]
     
-    //using for nested interrupt (Advanced exercise 2)
+    // nested interrupt
+    // load system register
+    //
     ldr x0, [sp, 16 * 16]
     msr spsr_el1,x0
     ldr x0,  [sp, 16 * 17]
     msr elr_el1, x0
-
-    ldp x0, x1, [sp ,16 * 0]  // restore x0 return value register
-    
-    add sp, sp, 32 * 12 // 最後把stack pointer加回去
+    ldp x0, x1, [sp ,16 * 0]    // restore x0 return value register
+    add sp, sp, 32 * 12         // 最後把stack pointer加回去
 .endm
 
 // Exception handlers

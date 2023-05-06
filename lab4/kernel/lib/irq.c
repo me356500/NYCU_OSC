@@ -20,7 +20,11 @@ void disable_interrupt() {
 
 void irq_handler(unsigned long long x0)
 {
+    // core0_int_src : 0x40000060
     // from aux && from GPU0 -> uart exception
+    // determine GPU interrupt : bit 8
+    // arm peripherals interrupt table
+    // bit 29 AUX interrupt
     if (*IRQ_PENDING_1 & IRQ_PENDING_1_AUX_INT && *CORE0_INTERRUPT_SOURCE & INTERRUPT_SOURCE_GPU) 
     {   
         // bit[2:1] 01 tx
@@ -40,7 +44,7 @@ void irq_handler(unsigned long long x0)
         else
             uart_printf("uart handler error\n");
     }
-    // check bit 1 to determine interrupt
+    // check bit 1 to determine timer interrupt
     else if (*CORE0_INTERRUPT_SOURCE & INTERRUPT_SOURCE_CNTPNSIRQ)
     {
         core_timer_interrupt_disable();

@@ -5,7 +5,7 @@ SECTIONS
     .text : 
     { 
         __text_start = .;
-        KEEP(*(.text.boot)) *(.text .text.*)
+        *(.text)
     }
     .bss : 
     {

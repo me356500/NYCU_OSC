@@ -20,7 +20,7 @@ typedef struct frame_entry_list_head {
 } frame_entry_list_head;
 
 typedef struct chunk_slot_entry {
-    uint32_t size;          // page chunk size
+    uint32_t size;          // page chunk size, per page, per chunk size type
     uint32_t status;        // free or allocated
 } chunk_slot_entry;
 
