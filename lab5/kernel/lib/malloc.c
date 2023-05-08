@@ -1,5 +1,6 @@
 
-
+#include "uart.h"
+#include "malloc.h"
 extern char __startup_allocator_start;
 char * startup_allocator_start = (char *) &__startup_allocator_start;
 
@@ -12,12 +13,13 @@ void *smalloc(unsigned long size)
     return r;
 }
 
-void *memcpy(void *dest, const void *src, int n) {
+void *memcpy(void *dest, const void *src, unsigned long long n) {
     char *cdest = dest;
     const char *csrc = src;
 
-    for (int i = 0; i < n; i++) {
-        cdest[i] = csrc[i];
+    while (n--)
+    {
+        *cdest++ = *csrc++;
     }
 
     return dest;

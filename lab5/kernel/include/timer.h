@@ -24,6 +24,7 @@ void core_timer_enable();
 void core_timer_disable();
 void core_timer_interrupt_enable();
 void core_timer_interrupt_disable();
+void cpu_timer_enable();
 void set_core_timer_interrupt(unsigned long long expire_time);
 void set_core_timer_interrupt_by_tick(unsigned long long tick);
 void set_core_timer_interrupt_first();

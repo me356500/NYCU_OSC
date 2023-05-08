@@ -3,6 +3,7 @@
 #include "current.h"
 #include "signal.h"
 #include "uart.h"
+#include "irq.h"
 #include "malloc.h"
 #include "timer.h"
 #include "string.h"
@@ -43,8 +44,10 @@ void idle()
 {
     while (1)
     {
-        kill_zombies(); // reclaim threads marked as DEAD
-        schedule();     // switch to next thread in run queue
+        // reclaim threads marked as DEAD
+        kill_zombies(); 
+        // switch to next thread
+        schedule();     
     }
 }
 void schedule()
@@ -54,7 +57,6 @@ void schedule()
     {
         curr_thread = (thread_t *)curr_thread->listhead.next;
     } while (list_is_head(&curr_thread->listhead, run_queue) || curr_thread->status == DEAD);
-
     switch_to(current_ctx, &curr_thread->context);
     unlock();
 }
@@ -78,15 +80,18 @@ void kill_zombies()
     unlock();
 }
 
-int exec_thread(char *data, unsigned int filesize)
-{
+int exec_thread(char *data, unsigned int filesize) {
+    //uart_puts("t1\n");
     thread_t *t = thread_create(data);
+    //uart_puts("t2\n");
     t->data = malloc(filesize);
+    //uart_puts("t3\n");
     t->datasize = filesize;
     t->context.lr = (unsigned long)t->data;
     // copy file into data
+    //uart_puts("copy start\n");
     memcpy(t->data, data, filesize);
-
+    //uart_async_printf("copy fin\n");
     // disable echo when going to userspace
     echo = 0;
     curr_thread = t;
@@ -105,7 +110,7 @@ int exec_thread(char *data, unsigned int filesize)
 thread_t *thread_create(void *start)
 {
     lock();
-
+    uart_puts("t1\n");
     thread_t *r;
     for (int i = 0; i <= PIDMAX; i++)
     {
@@ -115,22 +120,28 @@ thread_t *thread_create(void *start)
             break;
         }
     }
+    uart_puts("t2\n");
     r->status = RUNNING;
     r->context.lr = (unsigned long long)start;
+    uart_puts("m1\n");
     r->user_sp = malloc(USTACK_SIZE);
+    uart_puts("m2\n");
     r->kernel_sp = malloc(KSTACK_SIZE);
+    uart_puts("m3\n");
     r->context.sp = (unsigned long long)r->kernel_sp + KSTACK_SIZE;
     r->context.fp = r->context.sp;
     r->signal_is_checking = 0;
+    uart_puts("t3\n");
     // initial signal handler with signal_default_handler (kill thread)
     for (int i = 0; i < SIGNAL_MAX; i++)
     {
         r->signal_handler[i] = signal_default_handler;
         r->sigcount[i] = 0;
     }
-
+    uart_puts("t4\n");
     list_add(&r->listhead, run_queue);
     unlock();
+    //uart_printf("t4\n");
     return r;
 }
 

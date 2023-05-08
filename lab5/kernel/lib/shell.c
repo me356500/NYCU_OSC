@@ -25,19 +25,19 @@ void cmd(char *s1) {
     }
     
     if(!strcmp(arg[0], "help") && i == 1) {
-        uart_puts("cat    \t\t\t: cat\n");
-        uart_puts("clear  \t\t\t: clear all\n");
-        uart_puts("exec   \t\t\t: execute test file\n");
-        uart_puts("help   \t\t\t: print this help menu\n");
-        uart_puts("hello  \t\t\t: print Hello World!\n");
-        uart_puts("ls     \t\t\t: ls\n");
-        uart_puts("mailbox\t\t\t: show infos of board revision and ARM memory\n");
-        uart_puts("malloc \t\t\t: allocate string abc\n");
-        uart_puts("reboot \t\t\t: reboot the device\n");
-        uart_puts("sto [MESSAGE] [SECONDS]\t: print message after [SECONDS] seconds\n");
-        uart_puts("tsa [MESSAGE] \t\t: set an alarm that alert every two seconds\n");
-        uart_puts("pfa \t\t\t: test page frame allocator\n");
-        uart_puts("csa \t\t\t: test chunk slot allocator\n");
+        uart_async_printf("cat    \t\t\t: cat\n");
+        uart_async_printf("clear  \t\t\t: clear all\n");
+        uart_async_printf("exec   \t\t\t: execute test file\n");
+        uart_async_printf("help   \t\t\t: print this help menu\n");
+        uart_async_printf("hello  \t\t\t: print Hello World!\n");
+        uart_async_printf("ls     \t\t\t: ls\n");
+        uart_async_printf("mailbox\t\t\t: show infos of board revision and ARM memory\n");
+        uart_async_printf("malloc \t\t\t: allocate string abc\n");
+        uart_async_printf("reboot \t\t\t: reboot the device\n");
+        uart_async_printf("sto [MESSAGE] [SECONDS]\t: print message after [SECONDS] seconds\n");
+        uart_async_printf("tsa [MESSAGE] \t\t: set an alarm that alert every two seconds\n");
+        uart_async_printf("pfa \t\t\t: test page frame allocator\n");
+        uart_async_printf("csa \t\t\t: test chunk slot allocator\n");
     }
     else if(!strcmp(arg[0], "hello") && i == 1) {
         uart_puts("Hello World!\n");
@@ -76,7 +76,7 @@ void cmd(char *s1) {
     else if (!strcmp(arg[0], "sto") && i == 3) {
         // setTimeout MESSAGE SECONDS
 
-        uart_printf("'%s' Set Timeout : %d\n", arg[1], atoi(arg[2]) * get_clock_freq() + get_clock_tick());
+        uart_async_printf("'%s' Set Timeout : %d\n", arg[1], atoi(arg[2]) * get_clock_freq() + get_clock_tick());
         add_timer(uart_puts, arg[1], atoi(arg[2]), 0);
     }
     else if (!strcmp(arg[0], "tsa") && i == 2) {
@@ -87,12 +87,12 @@ void cmd(char *s1) {
     }
     else if (!strcmp(arg[0], "async") && i == 1) {
         char c = ' ';
-        uart_puts("Press enter to exit\n");
+        uart_async_printf("Press enter to exit\n");
         while(c != '\n' && c != '\r') {
             c = uart_async_getc();
             uart_async_putc(c);
         }
-        uart_puts("\n");
+        uart_async_printf("\n");
 
     }
     else if(!strcmp(arg[0], "preempt") && i == 1) {
@@ -105,9 +105,7 @@ void cmd(char *s1) {
         chunk_slot_allocator_test();
     }
     else {
-        uart_puts("Unknown command: ");
-        uart_puts(s1);
-        uart_puts("\n");
+        uart_async_printf("Unknown command: %s\n", s1);
     }
 }
 

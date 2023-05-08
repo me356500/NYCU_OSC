@@ -17,12 +17,12 @@
 // unmask specific interrupt
 void enable_interrupt() {
     //uart_puts("ei daif\n");
-    asm volatile("msr DAIFClr, 0xf");
+    asm volatile("msr daifclr, 0xf");
     //uart_puts("eiii daif\n");
 }
 // mask specific interrupt
 void disable_interrupt() {
-    asm volatile("msr DAIFSet, 0xf");
+    asm volatile("msr daifset, 0xf");
 }
 
 void irq_handler(unsigned long long x0)
@@ -68,7 +68,7 @@ void irq_handler(unsigned long long x0)
 }
 void invalid_exception_handler(unsigned long long x0) {
     uart_printf("invalid exception : 0x%x\n", x0);
-    //uart_getc();
+    uart_getc();
 }
 
 void cpacr_el1_off(){

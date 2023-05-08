@@ -13,6 +13,8 @@ struct fdt_header {
     unsigned int size_dt_strings;
     unsigned int size_dt_struct;
 };
+extern char* cpio_start;
+extern char* cpio_end;
 
 #define FDT_BEGIN_NODE  0x1             /* Start node: full name */
 #define FDT_END_NODE    0x2             /* End node */

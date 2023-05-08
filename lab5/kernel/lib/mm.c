@@ -3,8 +3,6 @@
 #include "malloc.h"
 #include "dtb.h"
 
-extern char *cpio_start;
-extern char *cpio_end;
 extern char __text_start;
 extern char __heap_start;
 extern char __startup_allocator_start;

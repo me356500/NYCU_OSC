@@ -19,14 +19,17 @@ struct list_head *timer_event_list;
 
 void timer_list_init()
 {
-    uint64_t tmp;
-    asm volatile("mrs %0, cntkctl_el1"
-                 : "=r"(tmp));
-    tmp |= 1;
-    asm volatile("msr cntkctl_el1, %0" ::"r"(tmp));
+    
 
     timer_event_list = malloc(sizeof(list_head_t));
     INIT_LIST_HEAD(timer_event_list);
+}
+
+void cpu_timer_enable() {
+    uint64_t tmp;
+    asm volatile("mrs %0, cntkctl_el1" : "=r"(tmp));
+    tmp |= 1;
+    asm volatile("msr cntkctl_el1, %0" ::"r"(tmp));
 }
 
 void core_timer_enable(){

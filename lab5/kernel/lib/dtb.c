@@ -65,7 +65,7 @@ void fdt_traverse(dtb_callback callback)
 
         // end of node's representation
         case FDT_END_NODE:
-            callback(token_type, 0, 0, 0);
+            //callback(token_type, 0, 0, 0);
             break;
         
         case FDT_PROP:
@@ -91,11 +91,11 @@ void fdt_traverse(dtb_callback callback)
             break;
         // ignore NOP
         case FDT_NOP:
-            callback(token_type, 0, 0, 0);
+            //callback(token_type, 0, 0, 0);
             break;
         // marks end of structures block
         case FDT_END:
-            callback(token_type, 0, 0, 0);
+            //callback(token_type, 0, 0, 0);
             break;
         default:
             uart_printf("error type:%x\n", token_type);
