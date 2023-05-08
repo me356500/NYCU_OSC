@@ -3,6 +3,7 @@
 #include "malloc.h"
 #include "dtb.h"
 
+
 extern char __text_start;
 extern char __heap_start;
 extern char __startup_allocator_start;
@@ -97,11 +98,11 @@ void *page_frame_allocation(uint32_t page_num)
     */
     if (page_num == 0)
         return (void *)0;
-
+    uart_puts("pfa 1\n");
     // get round up order
     int order = log2n(page_num);
     int alloc_page_order = order;
-
+      uart_puts("pfa 2\n");
     // if no freelist, allocate larger order, and then release
     while (list_empty(&pf_freelists[alloc_page_order]))
         ++alloc_page_order;
@@ -109,26 +110,27 @@ void *page_frame_allocation(uint32_t page_num)
     // still not find suitable free list
     if (alloc_page_order == MAX_ORDER)
     {
-        uart_async_printf("No page available !!! \n");
+        uart_printf("No page available !!! \n");
         return (void *)0;
     }
 
 #ifdef DEMO
-    uart_async_printf("ideal page order: %d\n", order);
-    uart_async_printf("alloc page order: %d\n", alloc_page_order);
+    uart_printf("ideal page order: %d\n", order);
+    uart_printf("alloc page order: %d\n", alloc_page_order);
 #endif
 
+      uart_puts("pfa 5\n");
     // get allocated page index
     frame_entry_list_head *felhp = (frame_entry_list_head *)pf_freelists[alloc_page_order].next;
     int idx = address2idx(felhp);
-
+    uart_puts("pfa 6\n");
     // delete from free list
     list_del(&felhp->listhead);
-
+    uart_puts("pfa 7\n");
 #ifdef DEMO
-    uart_async_printf("alloc page index: %d\n", idx);
+    uart_printf("alloc page index: %d\n", idx);
 #endif
-
+      
     // redundant block release
     while (alloc_page_order > order)
     {
@@ -139,8 +141,8 @@ void *page_frame_allocation(uint32_t page_num)
         pf_entries[bd_idx].status = FREE;
 
 #ifdef DEMO
-    uart_async_printf("released redundant page index: %d\n", bd_idx);
-    uart_async_printf("released redundant page order: %d\n", alloc_page_order);
+    uart_printf("released redundant page index: %d\n", bd_idx);
+    uart_printf("released redundant page order: %d\n", alloc_page_order);
 #endif
         // add back to free list
         frame_entry_list_head *bd_felhp = idx2address(bd_idx);

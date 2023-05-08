@@ -204,7 +204,7 @@ void enable_mini_uart_interrupt() {
     // might be block
     //uart_puts("a5\n");
     *ENABLE_IRQS_1 |= 1 << 29;
-    //uart_puts("a4\n");
+    uart_puts("a4\n");
 }
 
 // rx interrupt bit 1

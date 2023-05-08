@@ -35,8 +35,7 @@ void kernel_main() {
 
 void main(char *arg)
 {
-    //register unsigned long long x21 asm("x21");
-    // pass by x21 reg
+
     dtb_base = arg;
     // init list
     init_idx();
@@ -58,9 +57,9 @@ void main(char *arg)
     
   
 
-    uart_async_printf("Lab5 :\n");
-    //fork_test();
+    uart_printf("Lab5 :\n");
+
     //kernel_main();
-    //execfile("syscall.img");
+    execfile("syscall.img");
     shell();
 }
