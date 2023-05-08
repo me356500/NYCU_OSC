@@ -98,11 +98,11 @@ void *page_frame_allocation(uint32_t page_num)
     */
     if (page_num == 0)
         return (void *)0;
-    uart_puts("pfa 1\n");
+    //uart_puts("pfa 1\n");
     // get round up order
     int order = log2n(page_num);
     int alloc_page_order = order;
-      uart_puts("pfa 2\n");
+    //uart_puts("pfa 2\n");
     // if no freelist, allocate larger order, and then release
     while (list_empty(&pf_freelists[alloc_page_order]))
         ++alloc_page_order;
@@ -119,14 +119,14 @@ void *page_frame_allocation(uint32_t page_num)
     uart_printf("alloc page order: %d\n", alloc_page_order);
 #endif
 
-      uart_puts("pfa 5\n");
+    //uart_puts("pfa 5\n");
     // get allocated page index
     frame_entry_list_head *felhp = (frame_entry_list_head *)pf_freelists[alloc_page_order].next;
     int idx = address2idx(felhp);
-    uart_puts("pfa 6\n");
+    //uart_puts("pfa 6\n");
     // delete from free list
     list_del(&felhp->listhead);
-    uart_puts("pfa 7\n");
+    //uart_puts("pfa 7\n");
 #ifdef DEMO
     uart_printf("alloc page index: %d\n", idx);
 #endif
@@ -135,7 +135,10 @@ void *page_frame_allocation(uint32_t page_num)
     while (alloc_page_order > order)
     {
         // near to order
+      
         int bd_idx = idx ^ (1 << (--alloc_page_order));
+          //uart_dec(bd_idx);
+          //uart_puts("\n");
         // set new order
         pf_entries[bd_idx].order = alloc_page_order;
         pf_entries[bd_idx].status = FREE;
@@ -148,11 +151,11 @@ void *page_frame_allocation(uint32_t page_num)
         frame_entry_list_head *bd_felhp = idx2address(bd_idx);
         list_add(&bd_felhp->listhead, &pf_freelists[alloc_page_order]);
     }
-
+    //uart_puts("pfa 8\n");
     // set origin size allocated page
     pf_entries[idx].order = order;
     pf_entries[idx].status = ALLOCATED;
-
+    //uart_puts("pfa 9\n");
 #ifdef DEMO
     uart_async_printf("page is allocated at: %x\n", felhp);
     uart_async_printf("--------------------------------------------\n");

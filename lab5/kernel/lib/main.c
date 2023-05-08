@@ -32,7 +32,34 @@ void kernel_main() {
     uart_puts("idle\n");
     idle();
 }
+void fork_test(){
+    uart_printf("\nFork Test, pid %d\n", curr_thread->pid);
+    int cnt = 1;
+    int ret = 0;
+    if ((ret = fork()) == 0) { // child
+        long long cur_sp;
+        asm volatile("mov %0, sp" : "=r"(cur_sp));
+        uart_printf("first child pid: %d, cnt: %d, ptr: %x, sp : %x\n", curr_thread->pid, cnt, &cnt, cur_sp);
+        ++cnt;
 
+        if ((ret = fork()) != 0){
+            asm volatile("mov %0, sp" : "=r"(cur_sp));
+            uart_printf("first child pid: %d, cnt: %d, ptr: %x, sp : %x\n", curr_thread->pid, cnt, &cnt, cur_sp);
+        }
+        else{
+            while (cnt < 5) {
+                asm volatile("mov %0, sp" : "=r"(cur_sp));
+                uart_printf("second child pid: %d, cnt: %d, ptr: %x, sp : %x\n", curr_thread->pid, cnt, &cnt, cur_sp);
+                for(int z = 0; z < 10000000; ++z);
+                ++cnt;
+            }
+        }
+        exit();
+    }
+    else {
+        uart_printf("parent here, pid %d, child %d\n",curr_thread->pid, ret);
+    }
+}
 void main(char *arg)
 {
 
@@ -58,8 +85,8 @@ void main(char *arg)
   
 
     uart_printf("Lab5 :\n");
-
+    //fork_test();
     //kernel_main();
     execfile("syscall.img");
-    shell();
+    //shell();
 }

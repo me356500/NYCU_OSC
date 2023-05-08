@@ -11,8 +11,8 @@
 
 
 
-#define UART_IRQ_PRIORITY 3
-#define TIMER_IRQ_PRIORITY 4
+#define UART_IRQ_PRIORITY 4
+#define TIMER_IRQ_PRIORITY 3
 
 // unmask specific interrupt
 void enable_interrupt() {
@@ -25,7 +25,7 @@ void disable_interrupt() {
     asm volatile("msr daifset, 0xf");
 }
 
-void irq_handler(unsigned long long x0)
+void irq_handler()
 {
     // core0_int_src : 0x40000060
     // from aux && from GPU0 -> uart exception
@@ -83,6 +83,7 @@ void sync_el0_64_handler(trapframe_t *tpf) {
     enable_interrupt();
     unsigned long long syscall_no = tpf->x8;
 
+    // by lab given spec 
     switch (syscall_no)
     {
     case 0:

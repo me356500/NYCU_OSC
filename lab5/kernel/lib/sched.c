@@ -117,11 +117,11 @@ thread_t *thread_create(void *start)
     }
     r->status = RUNNING;
     r->context.lr = (unsigned long long)start;
-    uart_async_printf("m1\n");
+    //uart_async_printf("m1\n");
     r->user_sp = malloc(USTACK_SIZE);
-    uart_async_printf("m2\n");
+    //uart_async_printf("m2\n");
     r->kernel_sp = malloc(KSTACK_SIZE);
-    uart_async_printf("m3\n");
+    //uart_async_printf("m3\n");
     r->context.sp = (unsigned long long)r->kernel_sp + KSTACK_SIZE;
     r->context.fp = r->context.sp;
     r->signal_is_checking = 0;
@@ -145,6 +145,8 @@ void thread_exit()
     schedule();
 }
 
+// timer
+// set expired time
 void schedule_timer(char *notuse)
 {
     unsigned long long cntfrq_el0;

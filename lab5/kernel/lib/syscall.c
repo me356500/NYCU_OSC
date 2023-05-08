@@ -56,13 +56,13 @@ int exec(trapframe_t *tpf, const char *name, char *const argv[])
 int fork(trapframe_t *tpf)
 {
     lock();
-    uart_async_printf("t1\n");
+    //uart_async_printf("t1\n");
     thread_t *child_thread = thread_create(curr_thread->data);
-    uart_async_printf("t2\n");
+    //uart_async_printf("t2\n");
     // copy signal handler
     for (int i = 0; i <= SIGNAL_MAX; i++)
         child_thread->signal_handler[i] = curr_thread->signal_handler[i];
-    uart_async_printf("t3\n");
+    //uart_async_printf("t3\n");
     int parent_pid = curr_thread->pid;
     thread_t *parent_thread = curr_thread;
 

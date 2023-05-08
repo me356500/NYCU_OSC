@@ -161,6 +161,8 @@ char uart_async_getc() {
     // is empty
     // if empty rx buffer get a byte from IO
     //uart_puts("call rx\n");
+    // fix test
+    enable_mini_uart_rx_interrupt();
     while((uart_rx_buffer_w_idx == uart_rx_buffer_r_idx))
         enable_mini_uart_rx_interrupt();
     
