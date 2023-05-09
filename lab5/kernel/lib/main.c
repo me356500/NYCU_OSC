@@ -74,11 +74,12 @@ void main(char *arg)
    
     enable_interrupt();
     enable_mini_uart_interrupt();
-    //core_timer_interrupt_disable_alternative();
    
+    // lab5 init thread 
     init_thread_sched();
    
     core_timer_enable();
+    // test programm will access cpu timer register
     cpu_timer_enable();
 
     

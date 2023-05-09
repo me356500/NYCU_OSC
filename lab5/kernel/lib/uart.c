@@ -17,9 +17,9 @@ static unsigned int uart_rx_buffer_w_idx;
  * Set baud rate and characteristics (115200 8N1) and map to GPIO
  */
 void init_idx() {
-    uart_tx_buffer_r_idx = 1;
+    uart_tx_buffer_r_idx = 0;
     uart_tx_buffer_w_idx = 0;
-    uart_rx_buffer_r_idx = 1;
+    uart_rx_buffer_r_idx = 0;
     uart_rx_buffer_w_idx = 0;
 }
 void uart_init()

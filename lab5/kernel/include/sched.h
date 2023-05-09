@@ -16,6 +16,8 @@ typedef enum thread_status {
     DEAD,
 } thread_status_t;
 
+// callee-saved reg
+// other reg are already on stack
 typedef struct thread_context
 {
     unsigned long x19;
@@ -39,9 +41,14 @@ typedef struct thread
     list_head_t listhead;
 
     /* Context*/
+    // el0 sp -> user_sp
+    // el1 sp -> kernel_sp
+    // context sp : sp of this thread
+    // context switch may use context sp so it stores kernel_sp
     thread_context_t context;
 
-    /* Data info */
+    /* Data info */ 
+    // function or program location
     char *data;
     unsigned int datasize;
 
@@ -52,17 +59,24 @@ typedef struct thread
     /* Stack pointers*/
     // el0 call function
     char *user_sp;
-    // el1 call function, load all save all
+    // el1 call function, load all | save all
     char *kernel_sp;
 
     /* Signal */
+    // registered signal call back function
     signal_handler_t signal_handler[SIGNAL_MAX + 1];
+    // registered signal number
     int sigcount[SIGNAL_MAX + 1];
     signal_handler_t curr_signal_handler;
+    // prevent nested running signal handler
+    // set true when kernel checking signal
     int signal_is_checking;
+    // before running handler 
+    // save origin context
     thread_context_t signal_saved_context;
 } thread_t;
 
+// track curr_thread
 extern thread_t *curr_thread;
 extern list_head_t *run_queue;
 extern list_head_t *wait_queue;

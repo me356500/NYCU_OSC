@@ -1,3 +1,7 @@
+
+// tpidr_el1 : per cpu offset
+// MSB 2 bit : thread id
+
 .global switch_to
 switch_to:
     stp x19, x20, [x0, 16 * 0]
@@ -17,7 +21,7 @@ switch_to:
     ldp fp, lr, [x1, 16 * 5]
     ldr x9, [x1, 16 * 6]
     mov sp,  x9
-
+    //set tpidr_el1 reg
     msr tpidr_el1, x1
     ret
 

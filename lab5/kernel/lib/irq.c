@@ -62,6 +62,7 @@ void irq_handler()
         //uart_printf("a3\n");
         core_timer_interrupt_enable();
 
+        // timer interrupt to be round robin
         if (run_queue->next->next != run_queue) // runqueue size > 1
             schedule();
     }
@@ -81,9 +82,12 @@ void cpacr_el1_off(){
 
 void sync_el0_64_handler(trapframe_t *tpf) {
     enable_interrupt();
+    // get trapframe x8
+    // which is system call number
     unsigned long long syscall_no = tpf->x8;
 
     // by lab given spec 
+    // arguments store in x0 x1 x2 ...
     switch (syscall_no)
     {
     case 0:
@@ -117,6 +121,7 @@ void sync_el0_64_handler(trapframe_t *tpf) {
         signal_kill(tpf->x0, tpf->x1);
         break;
     case 50:
+        // self-defined signal return
         sigreturn(tpf);
         break;
     }

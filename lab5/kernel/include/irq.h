@@ -25,6 +25,7 @@
 #define DISABLE_IRQS_2 ((volatile unsigned int *)(PERIPHERAL_INTERRUPT_BASE + 0x0000B220))
 #define DISABLE_BASIC_IRQS ((volatile unsigned int *)(PERIPHERAL_INTERRUPT_BASE + 0x0000B224))
 
+// trapframe register
 typedef struct trapframe
 {
     unsigned long x0;

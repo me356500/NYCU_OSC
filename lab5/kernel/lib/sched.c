@@ -15,73 +15,77 @@ thread_t threads[PIDMAX + 1];
 void init_thread_sched()
 {
     lock();
+    // malloc run & wait queue
     run_queue = malloc(sizeof(list_head_t));
     wait_queue = malloc(sizeof(list_head_t));
     INIT_LIST_HEAD(run_queue);
     INIT_LIST_HEAD(wait_queue);
 
     // init pids
+    // 類似 thread pool
     for (int i = 0; i <= PIDMAX; i++)
     {
         threads[i].pid = i;
         threads[i].status = FREE;
     }
-
+    // set current tmp thread
     thread_t *tmp = malloc(sizeof(thread_t));
+    // set tpidr_el1
     set_current_ctx(&tmp->context);
     curr_thread = tmp;
 
+    // create idle
     thread_create(idle);
-
+    // Enable the core timer interrupt.
+    // Schedule the pending threads when the core timer interrupts.
     add_timer(schedule_timer, "", 1, 0);
     unlock();
 }
 
-void idle()
-{
-    while (1)
-    {
-        kill_zombies(); // reclaim threads marked as DEAD
-        schedule();     // switch to next thread in run queue
+void idle() {
+    while (1) {   
+        // reclaim threads marked as DEAD
+        kill_zombies(); 
+        // switch to next thread in run_queue
+        schedule();     
     }
 }
 
-void schedule()
-{
+void schedule() {
     lock();
-    do
-    {
+    do {
         curr_thread = (thread_t *)curr_thread->listhead.next;
     } while (list_is_head(&curr_thread->listhead, run_queue) || curr_thread->status == DEAD);
-
+    // switch to next thread
     switch_to(current_ctx, &curr_thread->context);
     unlock();
 }
 
-void kill_zombies()
-{
+void kill_zombies() {
     lock();
-    list_head_t *tmp;
-    list_for_each(tmp, run_queue)
-    {
-        thread_t *tmp_thread = (thread_t *)tmp;
-        if (tmp_thread->status == DEAD)
-        {
-            list_del(tmp);
-            free(tmp_thread->user_sp);   // free stack
-            free(tmp_thread->kernel_sp); // free stack
-        //    free(tmp_thread->data); // free data
-            tmp_thread->status = FREE;
+    list_head_t *now;
+    // traverse run_queue and find DEAD thread
+    list_for_each(now, run_queue) {
+        thread_t *cur_thread = (thread_t *)now;
+        if (cur_thread->status == DEAD) {
+            // delete thread 
+            list_del(now);
+            // free stack
+            free(cur_thread->user_sp);   
+            free(cur_thread->kernel_sp); 
+            // set free
+            cur_thread->status = FREE;
         }
     }
     unlock();
 }
 
-int exec_thread(char *data, unsigned int filesize)
-{
+int exec_thread(char *data, unsigned int filesize) {
     thread_t *t = thread_create(data);
+    // malloc memory for data
     t->data = malloc(filesize);
     t->datasize = filesize;
+    // set lr location
     t->context.lr = (unsigned long)t->data;
     // copy file into data
     memcpy(t->data, data, filesize);
@@ -90,6 +94,17 @@ int exec_thread(char *data, unsigned int filesize)
     echo = 0;
     curr_thread = t;
     // eret to exception level 0
+    // set tpidr to thread context_t
+    // spsr_el1 
+    // 0~3 bit 0b0000 : el0t , jump to el0 and use el0 stack
+    // 6~9 bit 0b0000 : turn on every interrupt
+
+    // elr_el1 set program start address to data
+    // sp_el0 , stack pointer set to top of program
+    // sp : current is el1 , so = sp_el1
+    // set kernel stack pointer
+    // stack往下長的
+    // eret to context lr
     __asm__ __volatile__("msr tpidr_el1, %0\n\t"
                          "msr elr_el1, %1\n\t"
                          "msr spsr_el1, xzr\n\t"
@@ -101,33 +116,30 @@ int exec_thread(char *data, unsigned int filesize)
     return 0;
 }
 
-thread_t *thread_create(void *start)
-{
+thread_t *thread_create(void *start) {
     lock();
 
     thread_t *r;
     // find available thread
-    for (int i = 0; i <= PIDMAX; i++)
-    {
-        if (threads[i].status == FREE)
-        {
+    for (int i = 0; i <= PIDMAX; i++) {
+        if (threads[i].status == FREE) {
             r = &threads[i];
             break;
         }
     }
+    // set status
     r->status = RUNNING;
+    // set lr to function location
     r->context.lr = (unsigned long long)start;
-    //uart_async_printf("m1\n");
     r->user_sp = malloc(USTACK_SIZE);
-    //uart_async_printf("m2\n");
     r->kernel_sp = malloc(KSTACK_SIZE);
-    //uart_async_printf("m3\n");
+    // set stack pointer top
     r->context.sp = (unsigned long long)r->kernel_sp + KSTACK_SIZE;
     r->context.fp = r->context.sp;
+    // init checking
     r->signal_is_checking = 0;
     // initial signal handler with signal_default_handler (kill thread)
-    for (int i = 0; i < SIGNAL_MAX; i++)
-    {
+    for (int i = 0; i < SIGNAL_MAX; i++) {
         r->signal_handler[i] = signal_default_handler;
         r->sigcount[i] = 0;
     }
@@ -137,19 +149,20 @@ thread_t *thread_create(void *start)
     return r;
 }
 
-void thread_exit()
-{
+void thread_exit() {
+    // set dead
     lock();
     curr_thread->status = DEAD;
     unlock();
+    // move on
     schedule();
 }
 
 // timer
 // set expired time
-void schedule_timer(char *notuse)
-{
+void schedule_timer(char *notuse) {
     unsigned long long cntfrq_el0;
+    // Set the expired time as core timer frequency shift right 5 bits.
     __asm__ __volatile__("mrs %0, cntfrq_el0\n\t"
                          : "=r"(cntfrq_el0)); // tick frequency
     add_timer(schedule_timer, "", cntfrq_el0 >> 5, 1);
