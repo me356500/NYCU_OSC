@@ -55,11 +55,11 @@ void irq_handler()
     else if (*CORE0_INTERRUPT_SOURCE & INTERRUPT_SOURCE_CNTPNSIRQ)
     {
         core_timer_interrupt_disable();
-        //uart_printf("a1\n");
+        // uart_printf("a1\n");
         add_task(core_timer_handler, TIMER_IRQ_PRIORITY);
-        //uart_printf("a2\n");
+        // uart_printf("a2\n");
         pop_task();
-        //uart_printf("a3\n");
+        // uart_printf("a3\n");
         core_timer_interrupt_enable();
 
         // timer interrupt to be round robin
@@ -94,30 +94,39 @@ void sync_el0_64_handler(trapframe_t *tpf) {
         getpid(tpf);
         break;
     case 1:
+        // buffer, size
         uartread(tpf, (char *)tpf->x0, tpf->x1);
         break;
     case 2:
+        // buffer, size
         uartwrite(tpf, (char *)tpf->x0, tpf->x1);
         break;
     case 3:
+        // name, argv
         exec(tpf, (char *)tpf->x0, (char **)tpf->x1);
         break;
     case 4:
         fork(tpf);
         break;
     case 5:
+        // status
+        // status not in use currently
         exit(tpf, tpf->x0);
         break;
     case 6:
+        // channel, mbox
         syscall_mbox_call(tpf, (unsigned char)tpf->x0, (unsigned int *)tpf->x1);
         break;
     case 7:
+        // pid
         kill(tpf, (int)tpf->x0);
         break;
     case 8:
+        // callback
         signal_register(tpf->x0, (signal_handler_t)tpf->x1);
         break;
     case 9:
+        // pid
         signal_kill(tpf->x0, tpf->x1);
         break;
     case 50:
@@ -159,7 +168,7 @@ void lock()
 void unlock()
 {
     lock_count--;
-    if (lock_count<0)
+    if (lock_count < 0)
     {
         uart_printf("lock error !!!\r\n");
         while(1);

@@ -158,15 +158,13 @@ int ls(char *working_dir)
     return 0;
 }
 
-char* get_file_start(char *thefilepath)
-{
+char* get_file_start(char *thefilepath) {
     char *filepath;
     char *filedata;
     unsigned int filesize;
     struct cpio_newc_header *header_pointer = (struct cpio_newc_header *)cpio_start;
 
-    while (header_pointer != 0)
-    {
+    while (header_pointer != 0) {
         int error = cpio_newc_parse_header(header_pointer, &filepath, &filesize, &filedata, &header_pointer);
         //if parse header error
         if (error)
@@ -187,15 +185,13 @@ char* get_file_start(char *thefilepath)
     return 0;
 }
 
-unsigned int get_file_size(char *thefilepath)
-{
+unsigned int get_file_size(char *thefilepath) {
     char *filepath;
     char *filedata;
     unsigned int filesize;
     struct cpio_newc_header *header_pointer = (struct cpio_newc_header *)cpio_start;
 
-    while (header_pointer != 0)
-    {
+    while (header_pointer != 0) {
         int error = cpio_newc_parse_header(header_pointer, &filepath, &filesize, &filedata, &header_pointer);
         //if parse header error
         if (error)

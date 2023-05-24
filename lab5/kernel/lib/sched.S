@@ -2,6 +2,8 @@
 // tpidr_el1 : per cpu offset
 // MSB 2 bit : thread id
 
+// save callee-saved register
+
 .global switch_to
 switch_to:
     stp x19, x20, [x0, 16 * 0]

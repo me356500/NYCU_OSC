@@ -6,7 +6,6 @@
 char uart_tx_buffer[MAX_BUF_SIZE] = {};
 char uart_rx_buffer[MAX_BUF_SIZE] = {};
 
-int echo = 1;
 
 static unsigned int uart_tx_buffer_r_idx;
 static unsigned int uart_tx_buffer_w_idx;

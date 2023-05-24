@@ -12,8 +12,7 @@ list_head_t *run_queue;
 list_head_t *wait_queue;
 thread_t threads[PIDMAX + 1];
 
-void init_thread_sched()
-{
+void init_thread_sched() {
     lock();
     // malloc run & wait queue
     run_queue = malloc(sizeof(list_head_t));
@@ -23,8 +22,7 @@ void init_thread_sched()
 
     // init pids
     // 類似 thread pool
-    for (int i = 0; i <= PIDMAX; i++)
-    {
+    for (int i = 0; i <= PIDMAX; i++) {
         threads[i].pid = i;
         threads[i].status = FREE;
     }
@@ -43,6 +41,8 @@ void init_thread_sched()
 }
 
 void idle() {
+    // In this lab check if there is any zombies
+    // recycles zombies
     while (1) {   
         // reclaim threads marked as DEAD
         kill_zombies(); 
@@ -68,7 +68,7 @@ void kill_zombies() {
     list_for_each(now, run_queue) {
         thread_t *cur_thread = (thread_t *)now;
         if (cur_thread->status == DEAD) {
-            // delete thread 
+            // delete from run queue  
             list_del(now);
             // free stack
             free(cur_thread->user_sp);   
@@ -81,6 +81,7 @@ void kill_zombies() {
 }
 
 int exec_thread(char *data, unsigned int filesize) {
+    // run syscall.img
     thread_t *t = thread_create(data);
     // malloc memory for data
     t->data = malloc(filesize);
@@ -89,10 +90,10 @@ int exec_thread(char *data, unsigned int filesize) {
     t->context.lr = (unsigned long)t->data;
     // copy file into data
     memcpy(t->data, data, filesize);
-
-    // disable echo when going to userspace
-    echo = 0;
+    // set curr_thread
+    lock();
     curr_thread = t;
+    unlock();
     // eret to exception level 0
     // set tpidr to thread context_t
     // spsr_el1 
@@ -133,17 +134,17 @@ thread_t *thread_create(void *start) {
     r->context.lr = (unsigned long long)start;
     r->user_sp = malloc(USTACK_SIZE);
     r->kernel_sp = malloc(KSTACK_SIZE);
-    // set stack pointer top
+    // set stack and frame pointer pointer top
     r->context.sp = (unsigned long long)r->kernel_sp + KSTACK_SIZE;
     r->context.fp = r->context.sp;
-    // init checking
+    // init is checking
     r->signal_is_checking = 0;
     // initial signal handler with signal_default_handler (kill thread)
     for (int i = 0; i < SIGNAL_MAX; i++) {
         r->signal_handler[i] = signal_default_handler;
         r->sigcount[i] = 0;
     }
-
+    // add to run_queue
     list_add(&r->listhead, run_queue);
     unlock();
     return r;
@@ -152,9 +153,10 @@ thread_t *thread_create(void *start) {
 void thread_exit() {
     // set dead
     lock();
+    // wait kill zombie to recollect
     curr_thread->status = DEAD;
     unlock();
-    // move on
+    // move on (end curr_thread)
     schedule();
 }
 

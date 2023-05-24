@@ -148,20 +148,24 @@ error_el1h:
     eret
 
 
-// svc exception 
+// svc 0
+// system call exception 
 sync_el0_64:
     save_all
+    // get trapframe (kernel sp) 
     mov x0,sp
     bl sync_el0_64_handler
-    // get trapframe 
+    // get trapframe (kernel sp)
     mov x0,sp // check signal when going back to user mode (el0)
     bl check_signal
     load_all
     eret
+// uart or timer
 irq_el0_64:
     save_all
+    // handle uart or timer
     bl irq_handler
-    // get trapframe
+    // get trapframe (kernel sp)
     mov x0,sp // check signal when going back to user mode (el0)
     bl check_signal
     load_all

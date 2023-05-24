@@ -79,10 +79,8 @@ void main(char *arg)
     init_thread_sched();
    
     core_timer_enable();
-    // test programm will access cpu timer register
+    // test program will access cpu timer register
     cpu_timer_enable();
-
-    
   
 
     uart_printf("Lab5 :\n");

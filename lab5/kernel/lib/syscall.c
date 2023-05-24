@@ -11,6 +11,7 @@
 #include "string.h"
 
 int getpid(trapframe_t *tpf) {
+    // save return value as current pid
     tpf->x0 = curr_thread->pid;
     return curr_thread->pid;
 }
@@ -41,17 +42,18 @@ int exec(trapframe_t *tpf, const char *name, char *const argv[]) {
     // cpio parse and return data & filesize
     curr_thread->datasize = get_file_size((char *)name);
     char *new_data = get_file_start((char *)name);
-    // copy data
+
+    // copy data to replace current thread data
     memcpy(curr_thread->data, new_data, curr_thread->datasize); 
 
     // clear signal handler
     for (int i = 0; i <= SIGNAL_MAX; i++)
         curr_thread->signal_handler[i] = signal_default_handler;
 
-    // set program 
-    // same as exec_thread
+    // set program (exception return address)
     tpf->elr_el1 = (unsigned long)curr_thread->data;
-    // set stack pointer
+    // set user stack pointer (el0)
+    // kind of reset user stack
     tpf->sp_el0 = (unsigned long)curr_thread->user_sp + USTACK_SIZE;
     tpf->x0 = 0;
     return 0;
@@ -59,7 +61,8 @@ int exec(trapframe_t *tpf, const char *name, char *const argv[]) {
 
 int fork(trapframe_t *tpf) {
     lock();
-    // fork process accrording current program(data)
+    // fork process accrording current program
+    // set lr to curr data
     thread_t *child_thread = thread_create(curr_thread->data);
 
     // copy signal handler
@@ -68,16 +71,16 @@ int fork(trapframe_t *tpf) {
 
     // store pid
     int parent_pid = curr_thread->pid;
+    // warning !!!
+    // memcpy before memorize parent thread may pollute stack
+    // gdb observed
     thread_t *parent_thread = curr_thread;
 
     // copy data
-    /*
-        demo
-        set tpf elr_el1
-    */
-    //child_thread->data = malloc(curr_thread->datasize);
-    //child_thread->datasize = curr_thread->datasize;
-    //memcpy(child_thread->data, curr_thread->data, curr_thread->datasize);
+    // demo
+    child_thread->data = malloc(curr_thread->datasize);
+    child_thread->datasize = curr_thread->datasize;
+    memcpy(child_thread->data, curr_thread->data, curr_thread->datasize);
 
     // copy user stack into new process
     memcpy(child_thread->user_sp, curr_thread->user_sp, USTACK_SIZE);
@@ -85,12 +88,16 @@ int fork(trapframe_t *tpf) {
     // copy kernel stack into new process
     memcpy(child_thread->kernel_sp, curr_thread->kernel_sp, KSTACK_SIZE);
 
-    store_context(current_ctx); // set child lr to here
+    // set child lr
+    // we need to set child context below 
+    // store current_ctx to  curr_thread
+    store_context(current_ctx); 
     // for child
     if (parent_pid != curr_thread->pid)
         goto child;
 
     // copy parent register
+    // callee saved register
     child_thread->context.x19 = curr_thread->context.x19;
     child_thread->context.x20 = curr_thread->context.x20;
     child_thread->context.x21 = curr_thread->context.x21;
@@ -103,10 +110,12 @@ int fork(trapframe_t *tpf) {
     child_thread->context.x28 = curr_thread->context.x28;
     // move fp
     // curr_fp + child_kernel_sp - curr_kernel_sp
+    // move relative location
     child_thread->context.fp =  child_thread->kernel_sp + curr_thread->context.fp - curr_thread->kernel_sp; 
     child_thread->context.lr = curr_thread->context.lr;
     // move kernel sp
     // curr_sp + child_kernel_sp - curr_kernel_sp
+    // move relative location
     child_thread->context.sp =  child_thread->kernel_sp + curr_thread->context.sp - curr_thread->kernel_sp; 
 
     unlock();
@@ -117,11 +126,12 @@ int fork(trapframe_t *tpf) {
 child:
     // move trapframe
     // now is parent tpf
-    // offset : tpf-parent->kernel_sp
+    // tpf : kernel stack
+    // offset : tpf - parent->kernel_sp
     // offset + child->kernel_sp is child trapframe
     tpf = (trapframe_t *)((unsigned long)child_thread->kernel_sp + (char *)tpf - (unsigned long)parent_thread->kernel_sp); 
     tpf->sp_el0 = child_thread->user_sp + tpf->sp_el0 - parent_thread->user_sp;
-
+    // child process return 0
     tpf->x0 = 0;
     return 0;
 }
@@ -131,6 +141,8 @@ void exit(trapframe_t *tpf, int status) {
 }
 
 int syscall_mbox_call(trapframe_t *tpf, unsigned char ch, unsigned int *mbox) {
+    // same as mbox_call 
+    // remeber to pass return value by x0
     lock();
     // ch & 0xf setting channel
     // &~0xF send setting of mbox
@@ -181,7 +193,7 @@ void signal_register(int signal, void (*handler)()) {
     // valid signal
     if (signal > SIGNAL_MAX || signal < 0)
         return;
-    // register
+    // register signal index as given handler
     lock();
     curr_thread->signal_handler[signal] = handler;
     unlock();
@@ -193,6 +205,10 @@ void signal_kill(int pid, int signal) {
         return;
 
     lock();
+    // check signal
+    // run in kernel -> default handler -> signal kill
+    
+    // normally only signal index 9 is kill
     threads[pid].sigcount[signal]++;
     unlock();
 }
@@ -201,6 +217,7 @@ void sigreturn(trapframe_t *tpf) {
     // move stack pointer to the end of stack, then free
     unsigned long signal_ustack = tpf->sp_el0 % USTACK_SIZE == 0 ? 
         tpf->sp_el0 - USTACK_SIZE : tpf->sp_el0 & (~(USTACK_SIZE - 1));
+    // recycle handler stack
     free((char *)signal_ustack);
     // restore original saved context
     load_context(&curr_thread->signal_saved_context);

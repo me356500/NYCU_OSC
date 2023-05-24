@@ -26,6 +26,8 @@
 #define DISABLE_BASIC_IRQS ((volatile unsigned int *)(PERIPHERAL_INTERRUPT_BASE + 0x0000B224))
 
 // trapframe register
+// saved at the top of kernel stack
+// sp_el1
 typedef struct trapframe
 {
     unsigned long x0;
@@ -59,8 +61,12 @@ typedef struct trapframe
     unsigned long x28;
     unsigned long x29;
     unsigned long x30;
+    // spsr_el1 
+    // 0~3 bit 0b0000 : el0t , jump to el0 and use el0 stack
+    // 6~9 bit 0b0000 : turn on every interrupt
     unsigned long spsr_el1;
     unsigned long elr_el1;
+    // user sp
     unsigned long sp_el0;
 
 } trapframe_t;

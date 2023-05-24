@@ -64,8 +64,12 @@ typedef struct thread
 
     /* Signal */
     // registered signal call back function
+    //
+    // number 9 is KILL 
+    // but all default sigKILL
     signal_handler_t signal_handler[SIGNAL_MAX + 1];
-    // registered signal number
+    // signal 
+    // signal count to corresponding signal_handler
     int sigcount[SIGNAL_MAX + 1];
     signal_handler_t curr_signal_handler;
     // prevent nested running signal handler
@@ -80,6 +84,7 @@ typedef struct thread
 extern thread_t *curr_thread;
 extern list_head_t *run_queue;
 extern list_head_t *wait_queue;
+// thread pool
 extern thread_t threads[PIDMAX + 1];
 
 void schedule_timer(char *s);
