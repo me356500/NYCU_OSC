@@ -25,15 +25,19 @@ void cmd(char *s1) {
     }
     
     if(!strcmp(arg[0], "help") && i == 1) {
-        uart_puts("cat    \t: cat\n");
-        uart_puts("clear  \t: clear all\n");
-        uart_puts("exec   \t: execute test file\n");
-        uart_puts("help   \t: print this help menu\n");
-        uart_puts("hello  \t: print Hello World!\n");
-        uart_puts("ls     \t: ls\n");
-        uart_puts("mailbox\t: show infos of board revision and ARM memory\n");
-        uart_puts("malloc \t: allocate string abc\n");
-        uart_puts("reboot \t: reboot the device\n");
+        uart_printf("cat    \t\t\t: cat\n");
+        uart_printf("clear  \t\t\t: clear all\n");
+        uart_printf("exec   \t\t\t: execute test file\n");
+        uart_printf("help   \t\t\t: print this help menu\n");
+        uart_printf("hello  \t\t\t: print Hello World!\n");
+        uart_printf("ls     \t\t\t: ls\n");
+        uart_printf("mailbox\t\t\t: show infos of board revision and ARM memory\n");
+        uart_printf("malloc \t\t\t: allocate string abc\n");
+        uart_printf("reboot \t\t\t: reboot the device\n");
+        uart_printf("sto [MESSAGE] [SECONDS]\t: print message after [SECONDS] seconds\n");
+        uart_printf("tsa [MESSAGE] \t\t: set an alarm that alert every two seconds\n");
+        uart_printf("pfa \t\t\t: test page frame allocator\n");
+        uart_printf("csa \t\t\t: test chunk slot allocator\n");
     }
     else if(!strcmp(arg[0], "hello") && i == 1) {
         uart_puts("Hello World!\n");
