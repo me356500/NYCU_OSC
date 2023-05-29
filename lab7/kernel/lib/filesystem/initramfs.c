@@ -6,7 +6,11 @@
 
 struct file_operations initramfs_file_operations = {initramfs_write, initramfs_read, initramfs_open, initramfs_close, vfs_lseek64, initramfs_getsize};
 struct vnode_operations initramfs_vnode_operations = {initramfs_lookup, initramfs_create, initramfs_mkdir};
-
+/*
+    copy from tmpfs
+    differ : register, setup_mount
+        , write, create, mkdir (these three fail)
+*/
 int register_initramfs()
 {
     struct filesystem fs;
@@ -25,6 +29,7 @@ int initramfs_setup_mount(struct filesystem *fs, struct mount *_mount)
     _mount->root = initramfs_create_vnode(0, dir_t);
     struct initramfs_inode *ramdir_inode = _mount->root->internal;
 
+    // differ from tmpfs_setup_mount below
     // add all file in initramfs to filesystem
     char *filepath;
     char *filedata;

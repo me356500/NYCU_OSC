@@ -23,6 +23,7 @@ void main(char *arg)
     task_list_init();
     fdt_traverse(initramfs_callback);
     init_allocator();
+    // lab7
     init_rootfs();
     timer_list_init();
    
@@ -30,15 +31,11 @@ void main(char *arg)
     enable_mini_uart_interrupt();
    
     init_thread_sched();
-   
     core_timer_enable();
-
-    
   
 
     uart_printf("Lab7 :\n");
 
-    //clear();
     execfile("vfs1.img");
     //shell();
 }

@@ -8,14 +8,18 @@ volatile unsigned int  __attribute__((aligned(16))) mbox[36];
  */
 int mbox_call(unsigned char ch) // Mailbox 0 define several channels, but we only use channel 8 (CPU->GPU) for communication.
 {
+    // upper 28 bits (message address)
+    // lower 4 bits (channel number)
     unsigned long r = (((unsigned long)((unsigned long)mbox) & ~0xF) | (ch & 0xF));
     /* wait until we can write to the mailbox */
+    // check mailbox 0 status 
     do{asm volatile("nop");}while(*MBOX_STATUS & MBOX_FULL);
     /* write the address of our message to the mailbox with channel identifier */
     *MBOX_WRITE = r;
     /* now wait for the response */
     while(1) {
         /* is there a response? */
+        // status -> ensure mbox state
         do{asm volatile("nop");}while(*MBOX_STATUS & MBOX_EMPTY);
         /* is it a response to our message? */
         if(r == PHYS_TO_VIRT(*MBOX_READ))

@@ -27,11 +27,12 @@ void *set_2M_kernel_mmu(void *x0)
         // nR no Reordering : strictly accroding to program order
         // nE transaction ack must from end point
         // every 2MB -> 3 level
+      
         if ((0x00000000 + (0x200000L) * i) >= 0x3F000000L)
             PMD[i] = PD_ACCESS | PD_BLOCK | (0x00000000 + (0x200000L) * i) | (MAIR_IDX_DEVICE_nGnRnE << 2) | PD_UK_ACCESS | PD_UNX | PD_KNX;
         else
             PMD[i] = PD_ACCESS | PD_BLOCK | (0x00000000 + (0x200000L) * i) | (MAIR_IDX_NORMAL_NOCACHE << 2);
-        // 0x3c0000000 ~ 0x3f0000000 is GPU (mailbox ..etc) memory
+        // 0x3F000000 to 0x3FFFFFFF for peripherals
     }
 
     // setting up second PMD which maps to  0x40000000 ~ 0x7fffffff

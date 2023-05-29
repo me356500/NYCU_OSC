@@ -71,7 +71,7 @@ int init_dev_framebuffer()
         pitch = mbox[33];       // get number of bytes per line
         isrgb = mbox[24];       // get the actual channel order
         // remember to change to virtual
-        // raw ram buffer address
+        // raw frame buffer address
         lfb = PHYS_TO_VIRT((void *)((unsigned long)mbox[28]));
     }
     else
@@ -85,6 +85,7 @@ int init_dev_framebuffer()
 int dev_framebuffer_write(struct file *file, const void *buf, size_t len)
 {
     lock();
+    // check out of bound
     if (len + file->f_pos > pitch * height)
     {
         len = pitch * height - file->f_pos;

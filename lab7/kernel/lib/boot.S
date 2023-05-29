@@ -67,6 +67,9 @@ setup_kernel_vm:
     orr     x2 , x2, 1
     msr     sctlr_el1, x2 
 
+    // because we origin on 0x80000
+    // use bl only jump to 0x80000 + offset
+    // we need to use br to ensure 0xffff__ + offset
     ldr     x2, =master
     br      x2
 

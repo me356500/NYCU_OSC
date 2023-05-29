@@ -65,6 +65,7 @@ int vfs_open(const char *pathname, int flags, struct file **target)
         char dirname[MAX_PATH_NAME + 1];
         strcpy(dirname, pathname);
         dirname[last_slash_idx] = 0;
+        // find parent dir
         if (vfs_lookup(dirname, &node) != 0)
         {
             uart_printf("cannot ocreate no dir name\n");
@@ -189,6 +190,7 @@ int vfs_lookup(const char *pathname, struct vnode **target)
     // iterate through directory
     // e.g: lookup "a/b/c"
     /*
+        different vnode may have different vnode operation
         use rootfs->lookup find vnode of a
         use a->lookup find vnode of b
         use b->lookup find vnode of c
@@ -198,7 +200,7 @@ int vfs_lookup(const char *pathname, struct vnode **target)
         if (pathname[i] == '/')
         {
             component_name[c_idx++] = 0;
-            // use parent vnode lookup to file vnod
+            // use parent vnode lookup to file vnode
             if (dirnode->v_ops->lookup(dirnode, &dirnode, component_name) != 0)
                 return -1;
 
@@ -229,6 +231,7 @@ int vfs_lookup(const char *pathname, struct vnode **target)
 
 int vfs_mknod(char *pathname, int id)
 {
+    // device file according to device id
     struct file *f = malloc(sizeof(struct file));
     // create file
     vfs_open(pathname, O_CREAT, &f);
@@ -252,7 +255,9 @@ long vfs_lseek64(struct file *file, long offset, int whence)
 
 void init_rootfs()
 {
+
     int idx = register_tmpfs();
+    // init rootfs
     rootfs = malloc(sizeof(struct mount));
     reg_fs[idx].setup_mount(&reg_fs[idx], rootfs);
 

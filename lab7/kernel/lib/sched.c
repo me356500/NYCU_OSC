@@ -101,10 +101,13 @@ void kill_zombies()
 int exec_thread(char *data, unsigned int filesize)
 {
     thread_t *t = thread_create(data, filesize);
-
-    add_vma(t, 0x3C000000L, 0x3000000L, 0x3C000000L, 3, 0);                                                     // device
-    add_vma(t, 0xffffffffb000, 0x4000, (size_t)VIRT_TO_PHYS(t->user_sp), 7, 1);                                 // stack
-    add_vma(t, 0x0, filesize, (size_t)VIRT_TO_PHYS(t->data), 7, 1);                                             // text
+    // video core memory
+    add_vma(t, 0x3C000000L, 0x3000000L, 0x3C000000L, 3, 0);  
+    // stack                                                 
+    add_vma(t, 0xffffffffb000, 0x4000, (size_t)VIRT_TO_PHYS(t->user_sp), 7, 1);   
+    // text (code)                            
+    add_vma(t, 0x0, filesize, (size_t)VIRT_TO_PHYS(t->data), 7, 1); 
+    // signal wrapper                                            
     add_vma(t, USER_SIG_WRAPPER_VIRT_ADDR_ALIGNED, 0x2000, (size_t)VIRT_TO_PHYS(signal_handler_wrapper), 5, 0); // for signal wrapper
 
     t->context.ttbr0_el1 = VIRT_TO_PHYS(t->context.ttbr0_el1);

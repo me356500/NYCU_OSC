@@ -281,9 +281,10 @@ int sys_open(trapframe_t *tpf, const char *pathname, int flags)
     path_to_absolute(abs_path, curr_thread->cwd);
     for (int i = 0; i < MAX_FD; i++)
     {
+        // valid entry
         if(!curr_thread->fdt[i])
         {
-            // open
+            // open given pathname
             if(vfs_open(abs_path, flags, &curr_thread->fdt[i])!=0)
             {
                 break;
@@ -385,13 +386,15 @@ int sys_chdir(trapframe_t *tpf, const char *path)
 long sys_lseek64(trapframe_t *tpf,int fd, long offset, int whence)
 {
     // get offset
-    tpf->x0 = vfs_lseek64(curr_thread->fdt[fd],offset,whence);
+    tpf->x0 = vfs_lseek64(curr_thread->fdt[fd], offset, whence);
     return tpf->x0;
 }
+
 extern unsigned int height;
 extern unsigned int isrgb;
 extern unsigned int pitch;
 extern unsigned int width;
+
 int sys_ioctl(trapframe_t *tpf, int fb, unsigned long request, void *info)
 {
     if(request == 0)

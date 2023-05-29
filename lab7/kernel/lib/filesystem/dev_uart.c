@@ -36,7 +36,7 @@ int dev_uart_open(struct vnode *file_node, struct file **target)
 
 int dev_uart_close(struct file *file)
 {
-    // free file handle
+    // free file
     free(file);
     return 0;
 }

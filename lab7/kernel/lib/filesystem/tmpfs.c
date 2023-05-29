@@ -88,6 +88,8 @@ int tmpfs_open(struct vnode *file_node, struct file **target)
 {
     // setup the file handler
     // file handle is created in vfs_open
+
+    // uart_async_printf("open : \n");
     (*target)->vnode = file_node;
     (*target)->f_ops = file_node->f_ops;
     (*target)->f_pos = 0;
@@ -107,6 +109,8 @@ int tmpfs_lookup(struct vnode *dir_node, struct vnode **target, const char *comp
     // get inode
     struct tmpfs_inode *dir_inode = dir_node->internal;
     int child_idx = 0;
+    // uart_async_printf("lookup : %s\n",component_name);
+
     // interate every child node
     for (; child_idx < MAX_DIR_ENTRY; child_idx++)
     {
@@ -131,7 +135,7 @@ int tmpfs_create(struct vnode *dir_node, struct vnode **target, const char *comp
     // get inode
     struct tmpfs_inode *inode = dir_node->internal;
     
-    // check is file type
+    // check is directory
     if (inode->type != dir_t)
     {
         uart_printf("tmpfs create not dir_t\n");
@@ -183,6 +187,7 @@ int tmpfs_mkdir(struct vnode *dir_node, struct vnode **target, const char *compo
     // get inode
     struct tmpfs_inode *inode = dir_node->internal;
 
+    // check is directory
     if (inode->type != dir_t)
     {
         uart_printf("tmpfs mkdir not dir_t\n");
