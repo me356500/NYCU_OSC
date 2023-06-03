@@ -2,7 +2,7 @@ OS := $(shell uname)
 
 ifeq ($(OS), Linux)
 	ARMGNU  = aarch64-linux-gnu
-	MACHINE = raspi3
+	MACHINE = raspi3b
 endif
 
 ifeq ($(OS), Darwin)

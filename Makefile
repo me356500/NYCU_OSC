@@ -10,7 +10,6 @@ clean:
 	cd lab4/bootloader && make clean
 	cd lab4/program && make clean
 	cd lab6/kernel && make clean
-	cd lab6/bootloader && make clean
 	cd lab6/program && make clean
 	cd lab7/kernel && make clean
 	cd lab7/bootloader && make clean
