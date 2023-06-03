@@ -29,7 +29,7 @@ lab6:
 	cd lab6/kernel && make run_display
 
 .PHONY: lab7
-run_display:
+lab7:
 	cd lab7/kernel && make run_display
 
 .PHONY: bl
