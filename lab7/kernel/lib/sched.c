@@ -23,7 +23,7 @@ void init_thread_sched()
     INIT_LIST_HEAD(wait_queue);
 
     // init pids
-    // 類似 thread pool
+    // like thread pool
     for (int i = 0; i <= PIDMAX; i++)
     {
         threads[i].pid = i;

@@ -1,8 +1,5 @@
 #include "list.h"
 
-//list_head_t *list = (list_head_t*)smalloc(sizeof(list_head_t));
-
-
 void INIT_LIST_HEAD(list_head_t *head)
 {
         head->next = head;

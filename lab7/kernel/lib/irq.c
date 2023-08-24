@@ -15,9 +15,7 @@
 
 // unmask specific interrupt
 void enable_interrupt() {
-    //uart_puts("ei daif\n");
     asm volatile("msr daifclr, 0xf");
-    //uart_puts("eiii daif\n");
 }
 // mask specific interrupt
 void disable_interrupt() {
@@ -54,11 +52,8 @@ void irq_handler()
     else if (*CORE0_INTERRUPT_SOURCE & INTERRUPT_SOURCE_CNTPNSIRQ)
     {
         core_timer_interrupt_disable();
-        //uart_printf("a1\n");
         add_task(core_timer_handler, TIMER_IRQ_PRIORITY);
-        //uart_printf("a2\n");
         pop_task();
-        //uart_printf("a3\n");
         core_timer_enable();
 
         // timer interrupt to be round robin

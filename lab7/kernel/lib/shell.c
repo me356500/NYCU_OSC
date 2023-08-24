@@ -22,9 +22,7 @@ void cmd(char *s1) {
 
     while(token != 0) {
         strcpy(arg[i], token);
-        //uart_puts(arg[i]);
         ++i;
-        //uart_send('0'+i);
         token = strtok(0, " ");
     }
     
@@ -53,21 +51,17 @@ void cmd(char *s1) {
         reset(1);
     }
     else if(!strcmp(arg[0], "cat") && i == 2) {
-        
         cat(arg[1]);
-        //uart_puts(arg[1]);
     }
     else if(!strcmp(arg[0], "clear") && i == 1) {
         uart_puts("\x1b[2J\x1b[H");
     }
     else if(!strcmp(arg[0], "ls") && i == 1) {
         ls(".");
-        //uart_puts(arg[1]);
     }
     else if(!strcmp(arg[0], "malloc")) {
         uart_puts("Allocating string abc\n");
         char *st = (char*)malloc(16);
-        // uart_puts("test1\n");
         st[0] = 'a';
         st[1] = 'b';
         st[2] = 'c';
@@ -79,15 +73,12 @@ void cmd(char *s1) {
     }
     else if (!strcmp(arg[0], "sto") && i == 3) {
         // setTimeout MESSAGE SECONDS
-
         uart_async_printf("'%s' Set Timeout : %d\n", arg[1], atoi(arg[2]) * get_clock_freq() + get_clock_tick());
         add_timer(uart_puts, arg[1], atoi(arg[2]), 0);
     }
     else if (!strcmp(arg[0], "tsa") && i == 2) {
         // tsa  MESSAGE
-
         add_timer(two_second_alert, arg[1], 2, 0);
-        
     }
     else if (!strcmp(arg[0], "async") && i == 1) {
         char c = ' ';

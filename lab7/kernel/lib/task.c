@@ -13,21 +13,15 @@ void task_list_init() {
 }
 void add_task(task_callback_t callback, int priority){
     // init task
-    //uart_puts("t1\n");
     task_t *t = malloc(sizeof(task_t));
-    //uart_puts("t2\n");
     t->priority = priority;
-    
-    //uart_puts("t3\n");
     t->callback = callback;
-    //uart_puts("t4\n");
 
     INIT_LIST_HEAD(&t->listhead);
     
     disable_interrupt();
     // insert based on priority
     if(list_empty(&task_list)) {
-        //uart_puts("f\n");
         list_add_tail(&t->listhead, &task_list);
     }
     else {

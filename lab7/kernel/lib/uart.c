@@ -67,11 +67,9 @@ void uart_send(unsigned int c) {
 char uart_getc() {
     char r;
     /* wait until something is in the buffer */
-    //uart_puts("getc\n");
     do{
         asm volatile("nop");
     }while(!(*AUX_MU_LSR & 0x01));
-    //uart_puts("read\n");
     /* read it and return */
     r = (char)(*AUX_MU_IO);
     /* convert carriage return to newline */
@@ -157,13 +155,11 @@ void uart_async_putc(char c) {
 char uart_async_getc() {
     // is empty
     // if empty rx buffer get a byte from IO
-    //uart_puts("call rx\n");
     // fix test
     enable_mini_uart_rx_interrupt();
     while((uart_rx_buffer_w_idx == uart_rx_buffer_r_idx))
         enable_mini_uart_rx_interrupt();
     
-    //uart_puts("agetc\n");
     disable_interrupt();
     // get a byte from rx buffer
     char c = uart_rx_buffer[uart_rx_buffer_r_idx++];
@@ -194,14 +190,12 @@ int uart_async_printf(char *fmt, ...)
 }
 
 void enable_mini_uart_interrupt() {
-    //uart_puts("a1\n");
+
     enable_mini_uart_rx_interrupt();
-    //uart_puts("a2\n");
     enable_mini_uart_tx_interrupt();
 
     // second level interrupt controller
     // might be block
-    //uart_puts("a5\n");
     *ENABLE_IRQS_1 |= 1 << 29;
     uart_puts("a4\n");
 }

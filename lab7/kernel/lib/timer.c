@@ -146,7 +146,6 @@ void add_timer(timer_callback_t callback, void* arg, unsigned long long expire_t
    // disable_interrupt();
     struct timer_event *entry = malloc(sizeof(struct timer_event));
     
-    //uart_printf("size : %d\n",n);
     entry->args = malloc(strlen(arg) + 1);
     strcpy(entry->args, (char *)arg);
 
@@ -247,13 +246,10 @@ void core_timer_handler() {
         return;
     }
     timer_event_callback((timer_event_t *)timer_event_list->next); // do callback and set new interrupt
-    //uart_puts("core_timer_handler...\n");
     unlock();
 }
 
 void two_second_alert(const char *str) {
-    //int n = strlen(str);
-    //uart_printf("tsa : size : %d\n",n);
     uart_printf("'%s': seconds after booting : %d\n", str, get_clock_time());
     add_timer(two_second_alert, str, 2, 0);
 }
